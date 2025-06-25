@@ -1,7 +1,9 @@
 #include "pch.h"
 
-#include "window.h"
+#include "engine/core/window.h"
+#include "engine/core/win32/os.h"
 #include "utilities/logger.h"
+
 #include "glad/glad.h"
 
 Window::~Window()
@@ -219,7 +221,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_CLOSE:
             m_isOpen = false;
             if (m_eventCallback) {
-                m_eventCallback(WindowEvent::Close, 0, 0, 0);
+                // m_eventCallback(WindowEvent::Close, 0, 0, 0);
             }
             return 0;
 
@@ -228,26 +230,26 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 m_width  = LOWORD(lParam);
                 m_height = HIWORD(lParam);
                 if (m_eventCallback) {
-                    m_eventCallback(WindowEvent::Resize, m_width, m_height, 0);
+                    // m_eventCallback(WindowEvent::Resize, m_width, m_height, 0);
                 }
             }
             return 0;
 
         case WM_SETFOCUS:
             if (m_eventCallback) {
-                m_eventCallback(WindowEvent::Focus, 0, 0, 0);
+                // m_eventCallback(WindowEvent::Focus, 0, 0, 0);
             }
             return 0;
 
         case WM_KILLFOCUS:
             if (m_eventCallback) {
-                m_eventCallback(WindowEvent::LostFocus, 0, 0, 0);
+                // m_eventCallback(WindowEvent::LostFocus, 0, 0, 0);
             }
             return 0;
 
         case WM_MOVE:
             if (m_eventCallback) {
-                m_eventCallback(WindowEvent::Moved, LOWORD(lParam), HIWORD(lParam), 0);
+                // m_eventCallback(WindowEvent::Moved, LOWORD(lParam), HIWORD(lParam), 0);
             }
             return 0;
 
@@ -257,7 +259,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 // param1: virtual key code, param2: repeat count, param3: scan code
                 int repeatCount = LOWORD(lParam);
                 int scanCode    = (HIWORD(lParam) & 0xFF);
-                m_eventCallback(WindowEvent::KeyPressed, (int)wParam, repeatCount, scanCode);
+                // m_eventCallback(WindowEvent::KeyPressed, (int)wParam, repeatCount, scanCode);
             }
             return 0;
 
@@ -266,7 +268,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (m_eventCallback) {
                 // param1: virtual key code, param2: 0, param3: scan code
                 int scanCode = (HIWORD(lParam) & 0xFF);
-                m_eventCallback(WindowEvent::KeyReleased, (int)wParam, 0, scanCode);
+                // m_eventCallback(WindowEvent::KeyReleased, (int)wParam, 0, scanCode);
             }
             return 0;
 
@@ -274,7 +276,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (m_eventCallback) {
                 // param1: character code, param2: repeat count
                 int repeatCount = LOWORD(lParam);
-                m_eventCallback(WindowEvent::CharTyped, (int)wParam, repeatCount, 0);
+                // m_eventCallback(WindowEvent::CharTyped, (int)wParam, repeatCount, 0);
             }
             return 0;
 
@@ -283,7 +285,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (m_eventCallback) {
                 int x = LOWORD(lParam);
                 int y = HIWORD(lParam);
-                m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Left, x, y);
+                // m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Left, x, y);
             }
             return 0;
 
@@ -291,7 +293,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (m_eventCallback) {
                 int x = LOWORD(lParam);
                 int y = HIWORD(lParam);
-                m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Left, x, y);
+                // m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Left, x, y);
             }
             return 0;
 
@@ -299,7 +301,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (m_eventCallback) {
                 int x = LOWORD(lParam);
                 int y = HIWORD(lParam);
-                m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Right, x, y);
+                // m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Right, x, y);
             }
             return 0;
 
@@ -307,7 +309,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (m_eventCallback) {
                 int x = LOWORD(lParam);
                 int y = HIWORD(lParam);
-                m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Right, x, y);
+                // m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Right, x, y);
             }
             return 0;
 
@@ -315,7 +317,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (m_eventCallback) {
                 int x = LOWORD(lParam);
                 int y = HIWORD(lParam);
-                m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Middle, x, y);
+                // m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Middle, x, y);
             }
             return 0;
 
@@ -323,7 +325,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (m_eventCallback) {
                 int x = LOWORD(lParam);
                 int y = HIWORD(lParam);
-                m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Middle, x, y);
+                // m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Middle, x, y);
             }
             return 0;
 
@@ -332,7 +334,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (m_eventCallback) {
                 int x = LOWORD(lParam);
                 int y = HIWORD(lParam);
-                m_eventCallback(WindowEvent::MouseMoved, x, y, 0);
+                // m_eventCallback(WindowEvent::MouseMoved, x, y, 0);
             }
             return 0;
 
@@ -342,7 +344,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 int x     = LOWORD(lParam);
                 int y     = HIWORD(lParam);
                 int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-                m_eventCallback(WindowEvent::MouseScrolled, x, y, delta);
+                // m_eventCallback(WindowEvent::MouseScrolled, x, y, delta);
             }
             return 0;
 
@@ -351,7 +353,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 int x     = LOWORD(lParam);
                 int y     = HIWORD(lParam);
                 int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-                m_eventCallback(WindowEvent::MouseScrolled, x, y, -delta); // Negative for horizontal
+                // m_eventCallback(WindowEvent::MouseScrolled, x, y, -delta); // Negative for horizontal
             }
             return 0;
 

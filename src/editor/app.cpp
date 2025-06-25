@@ -18,10 +18,7 @@ void App::onInit()
     m_model  = std::make_unique<Model>("assets/models/chair/modern_arm_chair_01_1k.gltf");
 }
 
-void App::onUpdate(float deltaTime)
-{
-    m_deltaTime = deltaTime;
-}
+void App::onUpdate(float deltaTime) {}
 
 void App::onRender()
 {
@@ -30,7 +27,7 @@ void App::onRender()
 
     m_shader->use();
 
-    glm::mat4 projection = glm::perspective(glm::radians(m_camera->getZoom()), (float)m_windowWidth / (float)m_windowHeight, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(m_camera->getZoom()), (float)1280 / (float)720, 0.1f, 100.0f);
     glm::mat4 view       = m_camera->getViewMatrix();
     m_shader->setMat4("projection", projection);
     m_shader->setMat4("view", view);
@@ -45,28 +42,28 @@ void App::onRender()
     // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void App::onWindowResize(int newWidth, int newHeight)
-{
-    m_windowWidth  = newWidth;
-    m_windowHeight = newHeight;
-}
+// void App::onWindowResize(int newWidth, int newHeight)
+// {
+//     m_windowWidth  = newWidth;
+//     m_windowHeight = newHeight;
+// }
 
-void App::onKeyPressed(KeyCode key, int repeatCount)
-{
-    //
-    if (key == KeyCode::W) {
-        m_camera->processKeyboard(FORWARD, m_deltaTime);
-    }
+// void App::onKeyPressed(KeyCode key, int repeatCount)
+// {
+//     //
+//     if (key == KeyCode::W) {
+//         m_camera->processKeyboard(FORWARD, m_deltaTime);
+//     }
 
-    if (key == KeyCode::S) {
-        m_camera->processKeyboard(BACKWARD, m_deltaTime);
-    }
+//     if (key == KeyCode::S) {
+//         m_camera->processKeyboard(BACKWARD, m_deltaTime);
+//     }
 
-    if (key == KeyCode::D) {
-        m_camera->processKeyboard(RIGHT, m_deltaTime);
-    }
+//     if (key == KeyCode::D) {
+//         m_camera->processKeyboard(RIGHT, m_deltaTime);
+//     }
 
-    if (key == KeyCode::A) {
-        m_camera->processKeyboard(LEFT, m_deltaTime);
-    }
-}
+//     if (key == KeyCode::A) {
+//         m_camera->processKeyboard(LEFT, m_deltaTime);
+//     }
+// }

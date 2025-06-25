@@ -1,7 +1,9 @@
 #include "pch.h"
 
-#include "engine.h"
-#include "window.h"
+#include "engine/core/engine.h"
+#include "engine/core/window.h"
+#include "engine/core/win32/os.h"
+
 #include "editor/app.h"
 
 #include "utilities/logger.h"
@@ -33,12 +35,9 @@ bool Engine::init(std::shared_ptr<App> app)
     }
 
     m_app = app;
-
-    m_app->onWindowResize(m_windowWidth, m_windowHeight);
     m_window->setEventCallback([this](WindowEvent event, int param1, int param2, int param3) { this->handleWindowEvent(event, param1, param2, param3); });
 
     run();
-
     return true;
 }
 
@@ -71,7 +70,7 @@ void Engine::handleWindowEvent(WindowEvent event, int param1, int param2, int pa
         case WindowEvent::Resize: {
             if (m_app) {
                 glViewport(0, 0, param1, param2);
-                m_app->onWindowResize(param1, param2);
+                // m_app->onWindowResize(param1, param2);
             }
         }
         case WindowEvent::KeyPressed: {

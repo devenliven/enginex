@@ -16,7 +16,7 @@ class Camera
 
     glm::mat4 getViewMatrix() const
     {
-        LOG_INFO("{}, {}, {}", m_position.x, m_position.y, m_position.z);
+        // LOG_INFO("{}, {}, {}", m_position.x, m_position.y, m_position.z);
         return glm::lookAt(m_position, m_position + m_front, m_up);
     }
     void processKeyboard(CAMERA_MOVEMENT direction, float deltaTime);

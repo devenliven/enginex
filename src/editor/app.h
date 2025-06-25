@@ -4,18 +4,18 @@
 #include <memory>
 
 #include "utilities/logger.h"
+#include "editor/bootstrap.h"
+
 #include "engine/renderer/shader.h"
 #include "engine/renderer/model.h"
 #include "engine/renderer/camera.h"
 
 #include "engine/core/window.h"
 
-enum class WindowEvent;
-
-class App
+class App : public Bootstrap
 {
   public:
-    App() { LOG_INFO("App instantiated!"); }
+    App()  = default;
     ~App() = default;
 
     void onInit();
@@ -23,17 +23,25 @@ class App
     void onRender();
     void initShaders();
 
-    virtual void onWindowResize(int newWidth, int newHeight);
-    virtual void onKeyPressed(KeyCode key, int repeatCount);
+    virtual void onKeyDown(KeyCode key, int repeatCount)
+    {
+        //
+    }
+
+    virtual void onKeyPressed(KeyCode key, int repeatCount)
+    {
+        //
+    }
+
+    virtual void onKeyReleased(KeyCode key)
+    {
+        //
+    }
 
   private:
     std::unique_ptr<Shader> m_shader = nullptr;
     std::unique_ptr<Model>  m_model  = nullptr;
     std::unique_ptr<Camera> m_camera = nullptr;
-
-    int   m_windowWidth  = 0;
-    int   m_windowHeight = 0;
-    float m_deltaTime    = 0;
 };
 
 // int main()

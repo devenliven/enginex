@@ -1,11 +1,12 @@
 #include "pch.h"
 
 #include "utilities/logger.h"
-#include "editor/iapp.h"
+#include "editor/app.h"
+// #include "editor/bootstrap.h"
 
 int main()
 {
-    auto app = std::make_unique<IApp>();
-    app->init();
+    auto app = std::make_shared<App>();
+    app->init(app);
     return 1;
 }
