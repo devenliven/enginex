@@ -1,0 +1,33 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/3rdparty/spdlog/include",
+                "${workspaceFolder}/3rdparty/glm",
+                "${workspaceFolder}/3rdparty/glad/include",
+                "${workspaceFolder}/3rdparty/assimp/include",
+                "${workspaceFolder}/3rdparty/configs"
+            ],
+            "defines": [
+                "_DEBUG",
+                "WIN32",
+                "_WIN32",
+                "WIN32_LEAN_AND_MEAN"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "compilerPath": "cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}

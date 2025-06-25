@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/engine_d.exe", // Change this to the path of your executable
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "preLaunchTask": "Build Debug",
+            "internalConsoleOptions": "openOnSessionStart"
+        },
+        {
+            "name": "Build",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/engine_d.exe", // Change this to the path of your executable
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "preLaunchTask": "Build Release",
+            "internalConsoleOptions": "openOnSessionStart"
+        }
+    ]
+}
