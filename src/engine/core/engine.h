@@ -1,11 +1,12 @@
 #ifndef ENGINE_H_
 #define ENGINE_H_
 
+#include "engine/core/window.h"
+#include "editor/app_interface.h"
+
 #include <memory>
 
-#include "window.h"
-
-class App;
+class InputManager;
 
 class Engine
 {
@@ -13,7 +14,7 @@ class Engine
     Engine() = default;
     ~Engine();
 
-    bool init(std::shared_ptr<App> app);
+    bool init(std::shared_ptr<IApp> app);
     void run();
 
     int setWindowWidth(int width) { m_windowWidth = width; }
@@ -22,10 +23,12 @@ class Engine
     int getWindowWidth() const { return m_windowWidth; }
     int getWindowHeight() const { return m_windowHeight; }
 
+    InputManager* getInputManager() { return m_inputManager.get(); }
+
   private:
-    std::unique_ptr<Window> m_window = nullptr;
-    std::shared_ptr<App>    m_app    = nullptr;
-    // IApp*                   m_app    = nullptr;
+    std::unique_ptr<Window>       m_window       = nullptr;
+    std::shared_ptr<IApp>         m_app          = nullptr;
+    std::unique_ptr<InputManager> m_inputManager = nullptr;
 
     int m_windowWidth  = 1280;
     int m_windowHeight = 720;

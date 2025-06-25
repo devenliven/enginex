@@ -1,10 +1,10 @@
 #include "pch.h"
 
-#include "app.h"
-
-#include "glad/glad.h"
+#include "editor/app.h"
 #include "utilities/file.h"
+#include "engine/core/input/input_manager.h"
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -18,7 +18,10 @@ void App::onInit()
     m_model  = std::make_unique<Model>("assets/models/chair/modern_arm_chair_01_1k.gltf");
 }
 
-void App::onUpdate(float deltaTime) {}
+void App::onUpdate(float deltaTime)
+{
+    processInput(deltaTime);
+}
 
 void App::onRender()
 {
@@ -37,33 +40,25 @@ void App::onRender()
     model           = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
     m_shader->setMat4("model", model);
     m_model->draw(m_shader.get());
-
-    // glBindVertexArray(m_VAO);
-    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-// void App::onWindowResize(int newWidth, int newHeight)
-// {
-//     m_windowWidth  = newWidth;
-//     m_windowHeight = newHeight;
-// }
+void App::processInput(float deltaTime)
+{
+    if (!m_inputManager || !m_camera) return;
 
-// void App::onKeyPressed(KeyCode key, int repeatCount)
-// {
-//     //
-//     if (key == KeyCode::W) {
-//         m_camera->processKeyboard(FORWARD, m_deltaTime);
-//     }
+    if (m_inputManager->isKeyPressed(KeyCode::W)) {
+        m_camera->processKeyboard(FORWARD, deltaTime);
+    }
 
-//     if (key == KeyCode::S) {
-//         m_camera->processKeyboard(BACKWARD, m_deltaTime);
-//     }
+    if (m_inputManager->isKeyPressed(KeyCode::S)) {
+        m_camera->processKeyboard(BACKWARD, deltaTime);
+    }
 
-//     if (key == KeyCode::D) {
-//         m_camera->processKeyboard(RIGHT, m_deltaTime);
-//     }
+    if (m_inputManager->isKeyPressed(KeyCode::A)) {
+        m_camera->processKeyboard(LEFT, deltaTime);
+    }
 
-//     if (key == KeyCode::A) {
-//         m_camera->processKeyboard(LEFT, m_deltaTime);
-//     }
-// }
+    if (m_inputManager->isKeyPressed(KeyCode::D)) {
+        m_camera->processKeyboard(RIGHT, deltaTime);
+    }
+}

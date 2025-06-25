@@ -1,18 +1,18 @@
 #ifndef EDITOR_APP_H_
 #define EDITOR_APP_H_
 
-#include <memory>
-
 #include "utilities/logger.h"
-#include "editor/bootstrap.h"
-
 #include "engine/renderer/shader.h"
 #include "engine/renderer/model.h"
 #include "engine/renderer/camera.h"
-
 #include "engine/core/window.h"
+#include "editor/app_interface.h"
 
-class App : public Bootstrap
+#include <memory>
+
+class InputManager;
+
+class App : public IApp
 {
   public:
     App()  = default;
@@ -23,25 +23,16 @@ class App : public Bootstrap
     void onRender();
     void initShaders();
 
-    virtual void onKeyDown(KeyCode key, int repeatCount)
-    {
-        //
-    }
-
-    virtual void onKeyPressed(KeyCode key, int repeatCount)
-    {
-        //
-    }
-
-    virtual void onKeyReleased(KeyCode key)
-    {
-        //
-    }
+    void setInputManager(InputManager* inputManager) { m_inputManager = inputManager; }
 
   private:
     std::unique_ptr<Shader> m_shader = nullptr;
     std::unique_ptr<Model>  m_model  = nullptr;
     std::unique_ptr<Camera> m_camera = nullptr;
+
+    InputManager* m_inputManager = nullptr;
+
+    void processInput(float deltaTime);
 };
 
 // int main()

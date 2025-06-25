@@ -40,7 +40,7 @@ class Camera
     float m_zoom;
 
     static constexpr float YAW         = -90.0f;
-    static constexpr float SPEED       = 100.5f;
+    static constexpr float SPEED       = 1.0f;
     static constexpr float SENSITIVITY = 0.1f;
     static constexpr float ZOOM        = 45.0f;
     static constexpr float PITCH       = 0.0f;

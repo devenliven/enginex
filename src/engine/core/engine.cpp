@@ -3,20 +3,20 @@
 #include "engine/core/engine.h"
 #include "engine/core/window.h"
 #include "engine/core/win32/os.h"
-
-#include "editor/app.h"
-
+#include "engine/core/input/input_manager.h"
 #include "utilities/logger.h"
 #include "utilities/timer.h"
 
 #include <glad/glad.h>
+
+class App;
 
 Engine::~Engine()
 {
     //
 }
 
-bool Engine::init(std::shared_ptr<App> app)
+bool Engine::init(std::shared_ptr<IApp> app)
 {
     m_window = std::make_unique<Window>();
     if (!m_window) {
@@ -34,10 +34,15 @@ bool Engine::init(std::shared_ptr<App> app)
         return false;
     }
 
+    m_inputManager = std::make_unique<InputManager>();
+    if (!m_inputManager) {
+        LOG_ERROR("Failed to initialize Input Manager!");
+        return false;
+    }
+
     m_app = app;
     m_window->setEventCallback([this](WindowEvent event, int param1, int param2, int param3) { this->handleWindowEvent(event, param1, param2, param3); });
 
-    run();
     return true;
 }
 
@@ -55,6 +60,8 @@ void Engine::run()
 
     while (m_window->isOpen()) {
         float deltaTime = timer.getDeltaTime();
+
+        m_inputManager->update();
 
         m_app->onUpdate(deltaTime);
         m_app->onRender();
@@ -77,10 +84,17 @@ void Engine::handleWindowEvent(WindowEvent event, int param1, int param2, int pa
             KeyCode key         = static_cast<KeyCode>(param1);
             int     repeatCount = param2;
 
+            m_inputManager->onKeyDown(key, repeatCount);
+
             if (m_app) {
-                m_app->onKeyPressed(key, repeatCount);
+                // m_app->onKeyPressed(key, repeatCount);
             }
             break;
+        }
+
+        case WindowEvent::KeyReleased: {
+            KeyCode key = static_cast<KeyCode>(param1);
+            m_inputManager->onKeyUp(key);
         }
     }
 }

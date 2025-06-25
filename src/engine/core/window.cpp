@@ -259,7 +259,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 // param1: virtual key code, param2: repeat count, param3: scan code
                 int repeatCount = LOWORD(lParam);
                 int scanCode    = (HIWORD(lParam) & 0xFF);
-                // m_eventCallback(WindowEvent::KeyPressed, (int)wParam, repeatCount, scanCode);
+                m_eventCallback(WindowEvent::KeyPressed, (int)wParam, repeatCount, scanCode);
             }
             return 0;
 
@@ -268,7 +268,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (m_eventCallback) {
                 // param1: virtual key code, param2: 0, param3: scan code
                 int scanCode = (HIWORD(lParam) & 0xFF);
-                // m_eventCallback(WindowEvent::KeyReleased, (int)wParam, 0, scanCode);
+                m_eventCallback(WindowEvent::KeyReleased, (int)wParam, 0, scanCode);
             }
             return 0;
 
