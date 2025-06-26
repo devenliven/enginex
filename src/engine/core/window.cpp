@@ -4,7 +4,8 @@
 #include "engine/core/win32/os.h"
 #include "utilities/logger.h"
 
-#include "glad/glad.h"
+#include <glad/glad.h>
+#include <hidusage.h>
 
 Window::~Window()
 {
@@ -80,6 +81,8 @@ bool Window::create(const WindowData& data)
         destroy();
         return false;
     }
+
+    registerRawMouseInput();
 
     ShowWindow(m_hwnd, SW_SHOW);
     UpdateWindow(m_hwnd);
@@ -204,6 +207,25 @@ bool Window::createOpenGLContext()
     }
 }
 
+bool Window::registerRawMouseInput()
+{
+    RAWINPUTDEVICE rid[1];
+
+    rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+    rid[0].usUsage     = HID_USAGE_GENERIC_MOUSE;
+    rid[0].dwFlags     = RIDEV_INPUTSINK;
+    rid[0].hwndTarget  = m_hwnd;
+
+    if (RegisterRawInputDevices(rid, 1, sizeof(rid[0])) == FALSE) {
+        LOG_ERROR("Failed to register raw input device");
+        return false;
+    }
+
+    m_mouseInputRegistred = true;
+    LOG_INFO("Raw mouse input registered successfully");
+    return true;
+}
+
 LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -256,7 +278,6 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
             if (m_eventCallback) {
-                // param1: virtual key code, param2: repeat count, param3: scan code
                 int repeatCount = LOWORD(lParam);
                 int scanCode    = (HIWORD(lParam) & 0xFF);
                 m_eventCallback(WindowEvent::KeyPressed, (int)wParam, repeatCount, scanCode);
@@ -266,7 +287,6 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_KEYUP:
         case WM_SYSKEYUP:
             if (m_eventCallback) {
-                // param1: virtual key code, param2: 0, param3: scan code
                 int scanCode = (HIWORD(lParam) & 0xFF);
                 m_eventCallback(WindowEvent::KeyReleased, (int)wParam, 0, scanCode);
             }
@@ -274,86 +294,58 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_CHAR:
             if (m_eventCallback) {
-                // param1: character code, param2: repeat count
                 int repeatCount = LOWORD(lParam);
                 // m_eventCallback(WindowEvent::CharTyped, (int)wParam, repeatCount, 0);
             }
             return 0;
 
-        // Mouse button events
+        case WM_INPUT: {
+            UINT dwSize = 0;
+            GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
+
+            if (dwSize > 0) {
+                std::vector<BYTE> lpb(dwSize);
+                if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb.data(), &dwSize, sizeof(RAWINPUTHEADER)) == dwSize) {
+                    RAWINPUT* raw = (RAWINPUT*)lpb.data();
+
+                    if (raw->header.dwType == RIM_TYPEMOUSE) {
+                        if (m_eventCallback) {
+                            int deltaX = raw->data.mouse.lLastX;
+                            int deltaY = raw->data.mouse.lLastY;
+                            m_eventCallback(WindowEvent::MouseMoved, deltaX, deltaY, 0);
+
+                            if (raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL) {
+                                short wheelDelta = (short)HIWORD(raw->data.mouse.usButtonData);
+                                m_eventCallback(WindowEvent::MouseScrolled, 0, 0, wheelDelta);
+                            }
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
+
         case WM_LBUTTONDOWN:
             if (m_eventCallback) {
-                int x = LOWORD(lParam);
-                int y = HIWORD(lParam);
-                // m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Left, x, y);
+                m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Left, 0, 0);
             }
             return 0;
 
         case WM_LBUTTONUP:
             if (m_eventCallback) {
-                int x = LOWORD(lParam);
-                int y = HIWORD(lParam);
-                // m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Left, x, y);
+                m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Left, 0, 0);
             }
             return 0;
 
         case WM_RBUTTONDOWN:
             if (m_eventCallback) {
-                int x = LOWORD(lParam);
-                int y = HIWORD(lParam);
-                // m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Right, x, y);
+                m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Right, 0, 0);
             }
             return 0;
 
         case WM_RBUTTONUP:
             if (m_eventCallback) {
-                int x = LOWORD(lParam);
-                int y = HIWORD(lParam);
-                // m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Right, x, y);
-            }
-            return 0;
-
-        case WM_MBUTTONDOWN:
-            if (m_eventCallback) {
-                int x = LOWORD(lParam);
-                int y = HIWORD(lParam);
-                // m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Middle, x, y);
-            }
-            return 0;
-
-        case WM_MBUTTONUP:
-            if (m_eventCallback) {
-                int x = LOWORD(lParam);
-                int y = HIWORD(lParam);
-                // m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Middle, x, y);
-            }
-            return 0;
-
-        // Mouse movement
-        case WM_MOUSEMOVE:
-            if (m_eventCallback) {
-                int x = LOWORD(lParam);
-                int y = HIWORD(lParam);
-                // m_eventCallback(WindowEvent::MouseMoved, x, y, 0);
-            }
-            return 0;
-
-        // Mouse wheel
-        case WM_MOUSEWHEEL:
-            if (m_eventCallback) {
-                int x     = LOWORD(lParam);
-                int y     = HIWORD(lParam);
-                int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-                // m_eventCallback(WindowEvent::MouseScrolled, x, y, delta);
-            }
-            return 0;
-
-        case WM_MOUSEHWHEEL: // Horizontal scroll
-            if (m_eventCallback) {
-                int x     = LOWORD(lParam);
-                int y     = HIWORD(lParam);
-                int delta = GET_WHEEL_DELTA_WPARAM(wParam);
-                // m_eventCallback(WindowEvent::MouseScrolled, x, y, -delta); // Negative for horizontal
+                m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Right, 0, 0);
             }
             return 0;
 

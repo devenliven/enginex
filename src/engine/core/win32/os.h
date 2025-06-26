@@ -65,8 +65,19 @@ enum class MouseButton
 {
     Left = 0,
     Right = 1,
-    Middle = 2
+    Middle = 2,
+    X1 = 3,     // Side buttons
+    X2 = 4
 };
+
+// Raw mouse input structure
+struct RawMouseInput {
+    int deltaX = 0;
+    int deltaY = 0;
+    int wheelDelta = 0;
+    bool isRelative = true;  // true for relative movement, false for absolute
+};
+
 // clang-format on
 
 #endif // WIN32_OS_H_

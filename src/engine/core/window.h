@@ -40,6 +40,9 @@ class Window
     LRESULT                 HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
     bool                    createOpenGLContext();
     bool                    setupPixelFormat();
+    bool                    registerRawMouseInput();
+
+    bool m_mouseInputRegistred = false;
 
     HWND  m_hwnd  = nullptr;
     HDC   m_hdc   = nullptr;

@@ -43,3 +43,24 @@ void Camera::processKeyboard(CAMERA_MOVEMENT direction, float deltaTime)
         m_position += m_right * velocity;
     }
 }
+
+void Camera::processMouse(float xoffset, float yoffset, GLboolean constrainPitch)
+{
+    xoffset *= m_mouseSensitivity;
+    yoffset *= m_mouseSensitivity;
+
+    m_yaw += xoffset;
+    m_pitch += yoffset;
+
+    if (constrainPitch) {
+        if (m_pitch > 89.0f) {
+            m_pitch = 89.0f;
+        }
+
+        if (m_pitch < -89.0f) {
+            m_pitch = -89.0f;
+        }
+    }
+
+    updateCamera();
+}

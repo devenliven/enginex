@@ -61,4 +61,6 @@ void App::processInput(float deltaTime)
     if (m_inputManager->isKeyPressed(KeyCode::D)) {
         m_camera->processKeyboard(RIGHT, deltaTime);
     }
+
+    m_camera->processMouse(m_inputManager->getMouseDelta().x, m_inputManager->getMouseDelta().y);
 }

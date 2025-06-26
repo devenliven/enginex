@@ -14,12 +14,10 @@ class Camera
   public:
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
 
-    glm::mat4 getViewMatrix() const
-    {
-        // LOG_INFO("{}, {}, {}", m_position.x, m_position.y, m_position.z);
-        return glm::lookAt(m_position, m_position + m_front, m_up);
-    }
+    glm::mat4 getViewMatrix() const { return glm::lookAt(m_position, m_position + m_front, m_up); }
+
     void processKeyboard(CAMERA_MOVEMENT direction, float deltaTime);
+    void processMouse(float xoffset, float yoffset, GLboolean constrainPitch = true);
 
     float getZoom() const { return m_zoom; }
 

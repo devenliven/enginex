@@ -91,10 +91,27 @@ void Engine::handleWindowEvent(WindowEvent event, int param1, int param2, int pa
             }
             break;
         }
-
         case WindowEvent::KeyReleased: {
             KeyCode key = static_cast<KeyCode>(param1);
             m_inputManager->onKeyUp(key);
+        }
+        case WindowEvent::MouseButtonPressed: {
+            MouseButton button = static_cast<MouseButton>(param1);
+            m_inputManager->onMouseButtonDown(button);
+            break;
+        }
+        case WindowEvent::MouseButtonReleased: {
+            MouseButton button = static_cast<MouseButton>(param1);
+            m_inputManager->onMouseButtonUp(button);
+            break;
+        }
+        case WindowEvent::MouseMoved: {
+            RawMouseInput input;
+            input.deltaX     = param1;
+            input.deltaY     = param2;
+            input.wheelDelta = 0;
+            m_inputManager->onMouseInput(input);
+            break;
         }
     }
 }
