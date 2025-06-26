@@ -16,7 +16,7 @@ class Camera
 
     glm::mat4 getViewMatrix() const { return glm::lookAt(m_position, m_position + m_front, m_up); }
 
-    void processKeyboard(CAMERA_MOVEMENT direction, float deltaTime);
+    void processKeyboard(CAMERA_MOVEMENT direction, float deltaTime, float speedMultiplier = 1.0f);
     void processMouse(float xoffset, float yoffset, GLboolean constrainPitch = true);
 
     float getZoom() const { return m_zoom; }

@@ -27,9 +27,9 @@ void Camera::updateCamera()
     m_up    = glm::normalize(glm::cross(m_right, m_front));
 }
 
-void Camera::processKeyboard(CAMERA_MOVEMENT direction, float deltaTime)
+void Camera::processKeyboard(CAMERA_MOVEMENT direction, float deltaTime, float speedMultiplier)
 {
-    float velocity = m_movementSpeed * deltaTime;
+    float velocity = m_movementSpeed * deltaTime * speedMultiplier;
     if (direction == FORWARD) {
         m_position += m_front * velocity;
     }

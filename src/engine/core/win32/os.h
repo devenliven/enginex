@@ -53,6 +53,7 @@ enum class KeyCode
     Num5 = '5', Num6 = '6', Num7 = '7', Num8 = '8', Num9 = '9',
     
     // Modifiers
+    Shift = VK_SHIFT,
     LeftShift = VK_LSHIFT,
     RightShift = VK_RSHIFT,
     LeftControl = VK_LCONTROL,

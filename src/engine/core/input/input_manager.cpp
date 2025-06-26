@@ -171,7 +171,7 @@ void InputManager::onMouseInput(const RawMouseInput& input)
         m_mouseMoveCallback(input.deltaX, input.deltaY);
     }
 
-    LOG_DEBUG("Raw mouse: dx={}, dy={}", (float)input.deltaX, (float)input.deltaY);
+    // LOG_DEBUG("Raw mouse: dx={}, dy={}", (float)input.deltaX, (float)input.deltaY);
 }
 
 RawMouseInput InputManager::getMouseDelta() const

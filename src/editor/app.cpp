@@ -46,20 +46,22 @@ void App::processInput(float deltaTime)
 {
     if (!m_inputManager || !m_camera) return;
 
+    float speedMultiplier = m_inputManager->isKeyPressed(KeyCode::Shift) ? 3.0f : 1.0f;
+
     if (m_inputManager->isKeyPressed(KeyCode::W)) {
-        m_camera->processKeyboard(FORWARD, deltaTime);
+        m_camera->processKeyboard(FORWARD, deltaTime, speedMultiplier);
     }
 
     if (m_inputManager->isKeyPressed(KeyCode::S)) {
-        m_camera->processKeyboard(BACKWARD, deltaTime);
+        m_camera->processKeyboard(BACKWARD, deltaTime, speedMultiplier);
     }
 
     if (m_inputManager->isKeyPressed(KeyCode::A)) {
-        m_camera->processKeyboard(LEFT, deltaTime);
+        m_camera->processKeyboard(LEFT, deltaTime, speedMultiplier);
     }
 
     if (m_inputManager->isKeyPressed(KeyCode::D)) {
-        m_camera->processKeyboard(RIGHT, deltaTime);
+        m_camera->processKeyboard(RIGHT, deltaTime, speedMultiplier);
     }
 
     RawMouseInput mouseDelta = m_inputManager->getMouseDelta();

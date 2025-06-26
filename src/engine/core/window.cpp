@@ -210,6 +210,8 @@ bool Window::createOpenGLContext()
         LOG_ERROR("Failed to make OpenGL context current");
         return false;
     }
+
+    return true;
 }
 
 bool Window::registerRawMouseInput()
@@ -320,11 +322,15 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_MOVE:
-            confineCursor(true);
+            showCursor(true);
             if (m_eventCallback) {
                 // m_eventCallback(WindowEvent::Moved, LOWORD(lParam), HIWORD(lParam), 0);
             }
             return 0;
+
+        case WM_EXITSIZEMOVE: {
+            showCursor(false);
+        }
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
@@ -399,7 +405,6 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Right, 0, 0);
             }
             return 0;
-
         default: return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
     }
 }
