@@ -213,8 +213,8 @@ bool Window::registerRawMouseInput()
 
     rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
     rid[0].usUsage     = HID_USAGE_GENERIC_MOUSE;
-    rid[0].dwFlags     = RIDEV_INPUTSINK;
-    rid[0].hwndTarget  = m_hwnd;
+    rid[0].dwFlags     = 0;
+    rid[0].hwndTarget  = nullptr;
 
     if (RegisterRawInputDevices(rid, 1, sizeof(rid[0])) == FALSE) {
         LOG_ERROR("Failed to register raw input device");

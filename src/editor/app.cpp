@@ -62,5 +62,7 @@ void App::processInput(float deltaTime)
         m_camera->processKeyboard(RIGHT, deltaTime);
     }
 
-    m_camera->processMouse(m_inputManager->getMouseDelta().x, m_inputManager->getMouseDelta().y);
+    RawMouseInput mouseDelta = m_inputManager->getMouseDelta();
+    m_camera->processMouse(mouseDelta.deltaX, mouseDelta.deltaY);
+    m_inputManager->resetMouseDelta();
 }

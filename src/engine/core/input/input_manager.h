@@ -10,17 +10,12 @@
 enum class InputState { Released = 0, Pressed, Held, JustReleased };
 enum class MouseInputState { Released = 0, Pressed, Held, JustReleased };
 
-struct MouseDelta {
-    float x;
-    float y;
-};
-
 class InputManager
 {
   public:
     using KeyCallback       = std::function<void(KeyCode, InputState)>;
     using MouseCallback     = std::function<void(MouseButton, MouseInputState)>;
-    using MouseMoveCallback = std::function<void(int deltaX, int deltaY)>;
+    using MouseMoveCallback = std::function<void(float deltaX, float deltaY)>;
 
     InputManager()  = default;
     ~InputManager() = default;
@@ -52,9 +47,9 @@ class InputManager
     bool            wasMouseButtonJustReleased(MouseButton button) const;
     MouseInputState getMouseButtonState(MouseButton button) const;
 
-    void       onMouseInput(const RawMouseInput& input);
-    MouseDelta getMouseDelta() const;
-    void       resetMouseDelta();
+    void          onMouseInput(const RawMouseInput& input);
+    RawMouseInput getMouseDelta() const;
+    void          resetMouseDelta();
 
     // void setCursorVisible(bool visible);
     // void setCursorLocked(bool locked);
@@ -70,10 +65,10 @@ class InputManager
 
     MouseMoveCallback m_mouseMoveCallback = nullptr;
 
-    int  m_mouseDeltaX     = 0;
-    int  m_mouseDeltaY     = 0;
-    int  m_mouseWheelDelta = 0;
-    bool m_cursorLocked    = false;
+    float m_mouseDeltaX     = 0;
+    float m_mouseDeltaY     = 0;
+    int   m_mouseWheelDelta = 0;
+    bool  m_cursorLocked    = false;
 
     void updateKeyState(KeyCode key, bool isPressed);
     void triggerCallback(KeyCode key, InputState state);

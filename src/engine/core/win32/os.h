@@ -72,8 +72,8 @@ enum class MouseButton
 
 // Raw mouse input structure
 struct RawMouseInput {
-    int deltaX = 0;
-    int deltaY = 0;
+    float deltaX = 0;
+    float deltaY = 0;
     int wheelDelta = 0;
     bool isRelative = true;  // true for relative movement, false for absolute
 };

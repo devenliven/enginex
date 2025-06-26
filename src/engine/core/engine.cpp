@@ -107,8 +107,8 @@ void Engine::handleWindowEvent(WindowEvent event, int param1, int param2, int pa
         }
         case WindowEvent::MouseMoved: {
             RawMouseInput input;
-            input.deltaX     = param1;
-            input.deltaY     = param2;
+            input.deltaX     = static_cast<float>(param1);
+            input.deltaY     = static_cast<float>(param2);
             input.wheelDelta = 0;
             m_inputManager->onMouseInput(input);
             break;

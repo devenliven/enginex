@@ -50,7 +50,7 @@ void Camera::processMouse(float xoffset, float yoffset, GLboolean constrainPitch
     yoffset *= m_mouseSensitivity;
 
     m_yaw += xoffset;
-    m_pitch += yoffset;
+    m_pitch -= yoffset;
 
     if (constrainPitch) {
         if (m_pitch > 89.0f) {

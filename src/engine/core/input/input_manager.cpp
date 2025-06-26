@@ -174,20 +174,20 @@ void InputManager::onMouseInput(const RawMouseInput& input)
     LOG_DEBUG("Raw mouse: dx={}, dy={}", (float)input.deltaX, (float)input.deltaY);
 }
 
-MouseDelta InputManager::getMouseDelta() const
+RawMouseInput InputManager::getMouseDelta() const
 {
     // deltaX = m_mouseDeltaX;
     // deltaY = m_mouseDeltaY;
-    MouseDelta delta;
-    delta.x = m_mouseDeltaX;
-    delta.y = m_mouseDeltaY;
+    RawMouseInput delta;
+    delta.deltaX = m_mouseDeltaX;
+    delta.deltaY = m_mouseDeltaY;
     return delta;
 }
 
 void InputManager::resetMouseDelta()
 {
-    m_mouseDeltaX = 0;
-    m_mouseDeltaY = 0;
+    m_mouseDeltaX = 0.0f;
+    m_mouseDeltaY = 0.0f;
 }
 
 void InputManager::triggerMouseButtonCallback(MouseButton button, MouseInputState state)
