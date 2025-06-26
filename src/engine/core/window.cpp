@@ -3,6 +3,7 @@
 #include "engine/core/window.h"
 #include "engine/core/win32/os.h"
 #include "utilities/logger.h"
+#include "utilities/stb_image.h"
 
 #include <glad/glad.h>
 #include <hidusage.h>
@@ -62,6 +63,7 @@ bool Window::create(const WindowData& data)
     }
 
     SetWindowLongPtr(m_hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+    // stbi_set_flip_vertically_on_load(true);
 
     m_hdc = GetDC(m_hwnd);
     if (!m_hdc) {
@@ -86,6 +88,9 @@ bool Window::create(const WindowData& data)
 
     ShowWindow(m_hwnd, SW_SHOW);
     UpdateWindow(m_hwnd);
+
+    confineCursor(true);
+    showCursor(false);
 
     m_isOpen = true;
     LOG_DEBUG("Window created succesfully: {}x{}", m_width, m_height);
@@ -226,6 +231,42 @@ bool Window::registerRawMouseInput()
     return true;
 }
 
+void Window::showCursor(bool show)
+{
+    m_cursorVisible = show;
+    if (show) {
+        while (ShowCursor(true) < 0)
+            ;
+    } else {
+        while (ShowCursor(false) >= 0)
+            ;
+    }
+}
+
+void Window::confineCursor(bool confine)
+{
+    m_cursorConfined = confine;
+    if (confine && m_hwnd) {
+        RECT rect;
+        GetClientRect(m_hwnd, &rect);
+
+        POINT topLeft     = {rect.left, rect.top};
+        POINT bottomRight = {rect.right, rect.bottom};
+
+        ClientToScreen(m_hwnd, &topLeft);
+        ClientToScreen(m_hwnd, &bottomRight);
+
+        rect.left   = topLeft.x;
+        rect.top    = topLeft.y;
+        rect.right  = bottomRight.x;
+        rect.bottom = bottomRight.y;
+
+        ClipCursor(&rect);
+    } else {
+        ClipCursor(nullptr);
+    }
+}
+
 LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -241,6 +282,8 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
         case WM_CLOSE:
+            confineCursor(false);
+            showCursor(true);
             m_isOpen = false;
             if (m_eventCallback) {
                 // m_eventCallback(WindowEvent::Close, 0, 0, 0);
@@ -251,6 +294,9 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (wParam != SIZE_MINIMIZED) {
                 m_width  = LOWORD(lParam);
                 m_height = HIWORD(lParam);
+
+                confineCursor(true);
+
                 if (m_eventCallback) {
                     // m_eventCallback(WindowEvent::Resize, m_width, m_height, 0);
                 }
@@ -258,18 +304,23 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_SETFOCUS:
+            showCursor(false);
+            confineCursor(true);
             if (m_eventCallback) {
                 // m_eventCallback(WindowEvent::Focus, 0, 0, 0);
             }
             return 0;
 
         case WM_KILLFOCUS:
+            showCursor(true);
+            confineCursor(true);
             if (m_eventCallback) {
                 // m_eventCallback(WindowEvent::LostFocus, 0, 0, 0);
             }
             return 0;
 
         case WM_MOVE:
+            confineCursor(true);
             if (m_eventCallback) {
                 // m_eventCallback(WindowEvent::Moved, LOWORD(lParam), HIWORD(lParam), 0);
             }

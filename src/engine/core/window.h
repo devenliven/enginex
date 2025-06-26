@@ -35,12 +35,15 @@ class Window
     HDC   getDeviceContext() const { return m_hdc; }
     HGLRC getOpenGLContext() const { return m_hglrc; }
 
+    void showCursor(bool show);
+
   private:
     static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT                 HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
     bool                    createOpenGLContext();
     bool                    setupPixelFormat();
     bool                    registerRawMouseInput();
+    void                    confineCursor(bool confine);
 
     bool m_mouseInputRegistred = false;
 
@@ -49,9 +52,11 @@ class Window
     HGLRC m_hglrc = nullptr;
 
     std::string m_title;
-    int         m_width  = 0;
-    int         m_height = 0;
-    bool        m_isOpen = false;
+    int         m_width          = 0;
+    int         m_height         = 0;
+    bool        m_isOpen         = false;
+    bool        m_cursorVisible  = true;
+    bool        m_cursorConfined = false;
 
     EventCallback m_eventCallback;
 };
