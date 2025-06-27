@@ -19,7 +19,8 @@ class Camera
     void processKeyboard(CAMERA_MOVEMENT direction, float deltaTime, float speedMultiplier = 1.0f);
     void processMouse(float xoffset, float yoffset, GLboolean constrainPitch = true);
 
-    float getZoom() const { return m_zoom; }
+    float     getZoom() const { return m_zoom; }
+    glm::vec3 getPosition() const { return m_position; }
 
   private:
     void updateCamera();

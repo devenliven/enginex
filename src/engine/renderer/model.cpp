@@ -62,10 +62,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vertex.pos = vector;
 
         if (mesh->HasNormals()) {
-            vector.x = mesh->mNormals[i].x;
-            vector.y = mesh->mNormals[i].y;
-            vector.z = mesh->mNormals[i].z;
-            vertex.normal - vector;
+            vector.x      = mesh->mNormals[i].x;
+            vector.y      = mesh->mNormals[i].y;
+            vector.z      = mesh->mNormals[i].z;
+            vertex.normal = vector;
         }
 
         if (mesh->mTextureCoords[0]) {
@@ -99,6 +99,42 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
+    Material  mat;
+    aiColor3D col;
+    float     value;
+
+    if (material->Get(AI_MATKEY_COLOR_DIFFUSE, col) == AI_SUCCESS) {
+        mat.diffuse = glm::vec3(col.r, col.g, col.b);
+    }
+
+    if (material->Get(AI_MATKEY_COLOR_SPECULAR, col) == AI_SUCCESS) {
+        mat.specular = glm::vec3(col.r, col.g, col.b);
+    }
+
+    if (material->Get(AI_MATKEY_COLOR_AMBIENT, col) == AI_SUCCESS) {
+        mat.ambient = glm::vec3(col.r, col.g, col.b);
+    }
+
+    if (material->Get(AI_MATKEY_SHININESS, value) == AI_SUCCESS) {
+        mat.shininess = value;
+    }
+
+    if (material->Get(AI_MATKEY_OPACITY, value) == AI_SUCCESS) {
+        mat.transparency = value;
+    }
+
+    if (material->Get(AI_MATKEY_METALLIC_FACTOR, value) == AI_SUCCESS) {
+        mat.metallic = value;
+    }
+
+    if (material->Get(AI_MATKEY_ROUGHNESS_FACTOR, value) == AI_SUCCESS) {
+        mat.roughness = value;
+    }
+
+    if (material->Get(AI_MATKEY_COLOR_EMISSIVE, col) == AI_SUCCESS) {
+        mat.emissive = glm::vec3(col.r, col.g, col.b);
+    }
+
     // Material shit
     std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
@@ -112,7 +148,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-    return Mesh(vertices, indices, textures);
+    return Mesh(vertices, indices, textures, mat);
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)

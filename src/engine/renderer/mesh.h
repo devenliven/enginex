@@ -24,15 +24,28 @@ struct Texture {
     std::string path;
 };
 
+struct Material {
+    glm::vec3 diffuse      = glm::vec3(0.8f, 0.8f, 0.8f);
+    glm::vec3 specular     = glm::vec3(0.5f, 0.5f, 0.5f);
+    glm::vec3 ambient      = glm::vec3(0.1f, 0.1f, 0.1f);
+    float     shininess    = 32.0f;
+    float     transparency = 1.0f;
+
+    float     metallic  = 0.0f;
+    float     roughness = 0.5f;
+    glm::vec3 emissive  = glm::vec3(0.0f);
+};
+
 class Shader;
 
 class Mesh
 {
   public:
-    Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures);
+    Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures, Material material);
     ~Mesh() {}
 
-    void draw(Shader* shader);
+    void            draw(Shader* shader);
+    const Material& getMaterial() const { return m_material; }
 
   private:
     uint32_t m_vbo;
@@ -42,6 +55,7 @@ class Mesh
     std::vector<Vertex>   m_vertices;
     std::vector<uint32_t> m_indices;
     std::vector<Texture>  m_textures;
+    Material              m_material;
 
     void setupMesh();
 };

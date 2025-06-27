@@ -4,17 +4,25 @@
 
 #include "engine/renderer/shader.h"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures, Material material)
 {
     m_vertices = vertices;
     m_indices  = indices;
     m_textures = textures;
+    m_material = material;
 
     setupMesh();
 }
 
 void Mesh::draw(Shader* shader)
 {
+    shader->setVec3("material.diffuse", m_material.diffuse);
+    shader->setVec3("material.specular", m_material.specular);
+    shader->setVec3("material.ambient", m_material.ambient);
+
+    shader->setFloat("material.shininess", m_material.shininess);
+    shader->setFloat("material.transparency", m_material.transparency);
+
     uint32_t diffuseNr = 1, specularNr = 1, normalNr = 1, heightNr = 1;
 
     for (uint32_t i = 0; i < m_textures.size(); i++) {

@@ -39,6 +39,13 @@ void App::onRender()
     model           = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     model           = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
     m_shader->setMat4("model", model);
+
+    m_shader->setVec3("lightPos", glm::vec3(2.0f, 2.0f, 2.0f));
+    m_shader->setVec3("lightCol", glm::vec3(1.0f, 1.0f, 1.0f));
+    m_shader->setVec3("viewPos", m_camera->getPosition());
+
+    m_shader->setBool("hasTexture", true);
+
     m_model->draw(m_shader.get());
 }
 
