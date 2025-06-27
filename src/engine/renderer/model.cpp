@@ -99,41 +99,60 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
+    LOG_INFO("Loading material: {}", material->GetName().C_Str());
+
     Material  mat;
     aiColor3D col;
     float     value;
 
+    // Diffuse color
     if (material->Get(AI_MATKEY_COLOR_DIFFUSE, col) == AI_SUCCESS) {
         mat.diffuse = glm::vec3(col.r, col.g, col.b);
+        LOG_INFO("Loaded diffuse: ({}, {}, {})", col.r, col.g, col.b);
+    } else {
+        LOG_INFO("No diffuse col found, using default: ({}, {}, {})", mat.diffuse.x, mat.diffuse.y, mat.diffuse.z);
     }
 
+    // Specular col
     if (material->Get(AI_MATKEY_COLOR_SPECULAR, col) == AI_SUCCESS) {
         mat.specular = glm::vec3(col.r, col.g, col.b);
+        LOG_INFO("Loaded specular: ({}, {}, {})", col.r, col.g, col.b);
+    } else {
+        LOG_INFO("No specular col found, using default: ({}, {}, {})", mat.specular.x, mat.specular.y, mat.specular.z);
     }
 
+    // Ambient col
     if (material->Get(AI_MATKEY_COLOR_AMBIENT, col) == AI_SUCCESS) {
         mat.ambient = glm::vec3(col.r, col.g, col.b);
+        LOG_INFO("Loaded ambient: ({}, {}, {})", col.r, col.g, col.b);
+    } else {
+        LOG_INFO("No ambient col found, using default: ({}, {}, {})", mat.ambient.x, mat.ambient.y, mat.ambient.z);
     }
 
+    // Shininess
     if (material->Get(AI_MATKEY_SHININESS, value) == AI_SUCCESS) {
         mat.shininess = value;
+        if (mat.shininess <= 0.0f) {
+            mat.shininess = 32.0f;
+        }
+        LOG_INFO("Loaded shininess: {}", value);
+    } else {
+        LOG_INFO("No shininess found, using default: {}", mat.shininess);
     }
 
+    // Transparency/Opacity
     if (material->Get(AI_MATKEY_OPACITY, value) == AI_SUCCESS) {
         mat.transparency = value;
+        LOG_INFO("Loaded transparency: {}", value);
+    } else {
+        LOG_INFO("No transparency found, using default: {}", mat.transparency);
     }
 
-    if (material->Get(AI_MATKEY_METALLIC_FACTOR, value) == AI_SUCCESS) {
-        mat.metallic = value;
-    }
-
-    if (material->Get(AI_MATKEY_ROUGHNESS_FACTOR, value) == AI_SUCCESS) {
-        mat.roughness = value;
-    }
-
-    if (material->Get(AI_MATKEY_COLOR_EMISSIVE, col) == AI_SUCCESS) {
-        mat.emissive = glm::vec3(col.r, col.g, col.b);
-    }
+    // Final material summary
+    LOG_INFO("Loaded material {} - Diffuse: ({}, {}, {}), Transparency: {}", material->GetName().C_Str(), mat.diffuse.x, mat.diffuse.y, mat.diffuse.z, mat.transparency);
+    LOG_INFO("");
+    LOG_INFO("");
+    LOG_INFO("");
 
     // Material shit
     std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");

@@ -28,7 +28,7 @@ struct Material {
     glm::vec3 diffuse      = glm::vec3(0.8f, 0.8f, 0.8f);
     glm::vec3 specular     = glm::vec3(0.5f, 0.5f, 0.5f);
     glm::vec3 ambient      = glm::vec3(0.1f, 0.1f, 0.1f);
-    float     shininess    = 32.0f;
+    float     shininess    = 8.0f;
     float     transparency = 1.0f;
 
     float     metallic  = 0.0f;
@@ -56,6 +56,7 @@ class Mesh
     std::vector<uint32_t> m_indices;
     std::vector<Texture>  m_textures;
     Material              m_material;
+    bool                  debugMessageSent = false;
 
     void setupMesh();
 };

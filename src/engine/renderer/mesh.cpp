@@ -16,12 +16,23 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vec
 
 void Mesh::draw(Shader* shader)
 {
+    if (!debugMessageSent) {
+        LOG_DEBUG("Setting material diffuse: ({}, {}, {})", m_material.diffuse.x, m_material.diffuse.y, m_material.diffuse.z);
+        LOG_DEBUG("Setting material ambient: ({}, {}, {})", m_material.ambient.x, m_material.ambient.y, m_material.ambient.z);
+        LOG_DEBUG("Setting material specular: ({}, {}, {})", m_material.specular.x, m_material.specular.y, m_material.specular.z);
+        LOG_DEBUG("Setting material shininess: {}", m_material.shininess);
+        LOG_DEBUG("Setting material transparency: {}", m_material.transparency);
+        debugMessageSent = true;
+    }
+
     shader->setVec3("material.diffuse", m_material.diffuse);
     shader->setVec3("material.specular", m_material.specular);
     shader->setVec3("material.ambient", m_material.ambient);
 
     shader->setFloat("material.shininess", m_material.shininess);
     shader->setFloat("material.transparency", m_material.transparency);
+
+    // LOG_DEBUG("Mesh has {} textures", m_textures.size());
 
     uint32_t diffuseNr = 1, specularNr = 1, normalNr = 1, heightNr = 1;
 
@@ -30,6 +41,8 @@ void Mesh::draw(Shader* shader)
 
         std::string number;
         std::string name = m_textures[i].type;
+
+        // LOG_DEBUG("Texture {}: type='{}', id={}", i, name, m_textures[i].id);
 
         if (name == "texture_diffuse") {
             number = std::to_string(diffuseNr++);
@@ -41,7 +54,10 @@ void Mesh::draw(Shader* shader)
             number = std::to_string(heightNr++);
         }
 
-        glUniform1i(glGetUniformLocation(shader->getProgram(), (name + number).c_str()), i);
+        std::string uniformName = name + number;
+        // LOG_DEBUG("Setting uniform '{}' to texture unit {}", uniformName, i);
+
+        glUniform1i(glGetUniformLocation(shader->getProgram(), uniformName.c_str()), i);
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
     }
 
