@@ -22,11 +22,13 @@ class Model
     void draw(Shader* shader);
 
   private:
-    void                 loadModel(const std::string& path);
-    void                 processNode(aiNode* node, const aiScene* scene);
-    Mesh                 processMesh(aiMesh* mesh, const aiScene* scene);
-    std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
-    uint32_t             textureFromFile(const std::string& path, bool gamma);
+    void     loadModel(const std::string& path);
+    void     processNode(aiNode* node, const aiScene* scene);
+    Mesh     processMesh(aiMesh* mesh, const aiScene* scene);
+    void     loadMaterialTextures(aiMaterial* aiMat, Material& mat, std::vector<Texture>& textures);
+    void     loadTextureType(aiMaterial* mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures, bool& hasTexture);
+    uint32_t textureFromFile(const std::string& path, bool gamma);
+    Material convertAiMaterialToPBR(aiMaterial* atMat);
 
     std::vector<Texture> m_texturesLoaded;
     std::vector<Mesh>    m_meshes;

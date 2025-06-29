@@ -16,48 +16,24 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vec
 
 void Mesh::draw(Shader* shader)
 {
-    if (!debugMessageSent) {
-        LOG_DEBUG("Setting material diffuse: ({}, {}, {})", m_material.diffuse.x, m_material.diffuse.y, m_material.diffuse.z);
-        LOG_DEBUG("Setting material ambient: ({}, {}, {})", m_material.ambient.x, m_material.ambient.y, m_material.ambient.z);
-        LOG_DEBUG("Setting material specular: ({}, {}, {})", m_material.specular.x, m_material.specular.y, m_material.specular.z);
-        LOG_DEBUG("Setting material shininess: {}", m_material.shininess);
-        LOG_DEBUG("Setting material transparency: {}", m_material.transparency);
-        debugMessageSent = true;
-    }
-
-    shader->setVec3("material.diffuse", m_material.diffuse);
-    shader->setVec3("material.specular", m_material.specular);
-    shader->setVec3("material.ambient", m_material.ambient);
-
-    shader->setFloat("material.shininess", m_material.shininess);
+    shader->setVec3("material.albedo", m_material.albedo);
+    shader->setFloat("material.metallic", m_material.metallic);
+    shader->setFloat("material.roughness", m_material.roughness);
+    shader->setFloat("material.ao", m_material.ao);
+    shader->setVec3("material.emissive", m_material.emissive);
     shader->setFloat("material.transparency", m_material.transparency);
 
-    // LOG_DEBUG("Mesh has {} textures", m_textures.size());
+    // Set texture availability flags
+    shader->setBool("material.hasAlbedoTexture", m_material.hasAlbedoTexture);
+    shader->setBool("material.hasMetallicTexture", m_material.hasMetallicTexture);
+    shader->setBool("material.hasRoughnessTexture", m_material.hasRoughnessTexture);
+    shader->setBool("material.hasNormalTexture", m_material.hasNormalTexture);
+    shader->setBool("material.hasLegacySpecular", m_material.hasLegacySpecular);
 
-    uint32_t diffuseNr = 1, specularNr = 1, normalNr = 1, heightNr = 1;
-
+    // Bind textures
     for (uint32_t i = 0; i < m_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
-
-        std::string number;
-        std::string name = m_textures[i].type;
-
-        // LOG_DEBUG("Texture {}: type='{}', id={}", i, name, m_textures[i].id);
-
-        if (name == "texture_diffuse") {
-            number = std::to_string(diffuseNr++);
-        } else if (name == "texture_specular") {
-            number = std::to_string(specularNr++);
-        } else if (name == "texture_normal") {
-            number = std::to_string(normalNr++);
-        } else if (name == "texture_height") {
-            number = std::to_string(heightNr++);
-        }
-
-        std::string uniformName = name + number;
-        // LOG_DEBUG("Setting uniform '{}' to texture unit {}", uniformName, i);
-
-        glUniform1i(glGetUniformLocation(shader->getProgram(), uniformName.c_str()), i);
+        glUniform1i(glGetUniformLocation(shader->getProgram(), (m_textures[i].type + "1").c_str()), i);
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
     }
 

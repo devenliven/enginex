@@ -97,91 +97,124 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         }
     }
 
-    aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+    aiMaterial* aiMat = scene->mMaterials[mesh->mMaterialIndex];
+    LOG_INFO("Processing mesh: {} with material: {}", mesh->mName.C_Str(), aiMat->GetName().C_Str());
 
-    LOG_INFO("Loading material: {}", material->GetName().C_Str());
+    Material mat = convertAiMaterialToPBR(aiMat);
+    loadMaterialTextures(aiMat, mat, textures);
 
-    Material  mat;
-    aiColor3D col;
-    float     value;
-
-    // Diffuse color
-    if (material->Get(AI_MATKEY_COLOR_DIFFUSE, col) == AI_SUCCESS) {
-        mat.diffuse = glm::vec3(col.r, col.g, col.b);
-        LOG_INFO("Loaded diffuse: ({}, {}, {})", col.r, col.g, col.b);
-    } else {
-        LOG_INFO("No diffuse col found, using default: ({}, {}, {})", mat.diffuse.x, mat.diffuse.y, mat.diffuse.z);
-    }
-
-    // Specular col
-    if (material->Get(AI_MATKEY_COLOR_SPECULAR, col) == AI_SUCCESS) {
-        mat.specular = glm::vec3(col.r, col.g, col.b);
-        LOG_INFO("Loaded specular: ({}, {}, {})", col.r, col.g, col.b);
-    } else {
-        LOG_INFO("No specular col found, using default: ({}, {}, {})", mat.specular.x, mat.specular.y, mat.specular.z);
-    }
-
-    // Ambient col
-    if (material->Get(AI_MATKEY_COLOR_AMBIENT, col) == AI_SUCCESS) {
-        mat.ambient = glm::vec3(col.r, col.g, col.b);
-        LOG_INFO("Loaded ambient: ({}, {}, {})", col.r, col.g, col.b);
-    } else {
-        LOG_INFO("No ambient col found, using default: ({}, {}, {})", mat.ambient.x, mat.ambient.y, mat.ambient.z);
-    }
-
-    // Shininess
-    if (material->Get(AI_MATKEY_SHININESS, value) == AI_SUCCESS) {
-        mat.shininess = value;
-        if (mat.shininess <= 0.0f) {
-            mat.shininess = 32.0f;
-        }
-        LOG_INFO("Loaded shininess: {}", value);
-    } else {
-        LOG_INFO("No shininess found, using default: {}", mat.shininess);
-    }
-
-    // Transparency/Opacity
-    if (material->Get(AI_MATKEY_OPACITY, value) == AI_SUCCESS) {
-        mat.transparency = value;
-        LOG_INFO("Loaded transparency: {}", value);
-    } else {
-        LOG_INFO("No transparency found, using default: {}", mat.transparency);
-    }
-
-    // Final material summary
-    LOG_INFO("Loaded material {} - Diffuse: ({}, {}, {}), Transparency: {}", material->GetName().C_Str(), mat.diffuse.x, mat.diffuse.y, mat.diffuse.z, mat.transparency);
-    LOG_INFO("");
-    LOG_INFO("");
-    LOG_INFO("");
-
-    // Material shit
-    std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-    textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-
-    std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-    textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-
-    std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-    textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-
-    std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-    textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+    LOG_INFO("Mesh {} final material: A({:.2f},{:.2f},{:.2f}) M:{:.2f} R:{:.2f} Textures: A:{} M:{} R:{} N:{}", mesh->mName.C_Str(), mat.albedo.r, mat.albedo.g, mat.albedo.b, mat.metallic, mat.roughness,
+             mat.hasAlbedoTexture, mat.hasMetallicTexture, mat.hasRoughnessTexture, mat.hasNormalTexture);
 
     return Mesh(vertices, indices, textures, mat);
 }
 
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+Material Model::convertAiMaterialToPBR(aiMaterial* aiMat)
 {
-    std::vector<Texture> textures;
+    Material  mat;
+    aiColor3D color;
+    float     value;
+
+    // Set better defaults for PBR
+    mat.albedo       = glm::vec3(0.7f, 0.7f, 0.7f); // Lighter default
+    mat.metallic     = 0.0f;
+    mat.roughness    = 0.8f; // More diffuse by default
+    mat.ao           = 1.0f;
+    mat.emissive     = glm::vec3(0.0f);
+    mat.transparency = 1.0f;
+
+    // Try to get PBR properties first
+    if (aiMat->Get(AI_MATKEY_BASE_COLOR, color) == AI_SUCCESS) {
+        mat.albedo = glm::vec3(color.r, color.g, color.b);
+    } else if (aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
+        mat.albedo = glm::vec3(color.r, color.g, color.b);
+        // Ensure albedo isn't too dark
+        float brightness = (mat.albedo.r + mat.albedo.g + mat.albedo.b) / 3.0f;
+        if (brightness < 0.1f) {
+            mat.albedo = glm::vec3(0.5f, 0.5f, 0.5f); // Fallback to gray
+        }
+    }
+
+    // Metallic factor
+    if (aiMat->Get(AI_MATKEY_METALLIC_FACTOR, value) == AI_SUCCESS) {
+        mat.metallic = glm::clamp(value, 0.0f, 1.0f);
+    } else if (aiMat->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS) {
+        float specularIntensity = (color.r + color.g + color.b) / 3.0f;
+        mat.metallic            = specularIntensity > 0.5f ? 0.1f : 0.0f; // Be conservative
+    }
+
+    // Roughness factor
+    if (aiMat->Get(AI_MATKEY_ROUGHNESS_FACTOR, value) == AI_SUCCESS) {
+        mat.roughness = glm::clamp(value, 0.01f, 1.0f);
+    } else if (aiMat->Get(AI_MATKEY_SHININESS, value) == AI_SUCCESS && value > 0) {
+        // Convert shininess to roughness more conservatively
+        mat.roughness = glm::clamp(1.0f - (value / 256.0f), 0.1f, 1.0f);
+    }
+
+    // Emissive
+    if (aiMat->Get(AI_MATKEY_COLOR_EMISSIVE, color) == AI_SUCCESS) {
+        mat.emissive = glm::vec3(color.r, color.g, color.b);
+    }
+
+    // Transparency
+    if (aiMat->Get(AI_MATKEY_OPACITY, value) == AI_SUCCESS) {
+        mat.transparency = glm::clamp(value, 0.0f, 1.0f);
+    }
+
+    LOG_INFO("Final material - Albedo: ({:.2f}, {:.2f}, {:.2f}), Metallic: {:.2f}, Roughness: {:.2f}", mat.albedo.r, mat.albedo.g, mat.albedo.b, mat.metallic, mat.roughness);
+
+    return mat;
+}
+
+void Model::loadMaterialTextures(aiMaterial* aiMat, Material& mat, std::vector<Texture>& textures)
+{
+    // Initialize all flags to false
+    mat.hasAlbedoTexture    = false;
+    mat.hasMetallicTexture  = false;
+    mat.hasRoughnessTexture = false;
+    mat.hasNormalTexture    = false;
+    mat.hasAoTexture        = false;
+    mat.hasEmissiveTexture  = false;
+    mat.hasLegacyDiffuse    = false;
+    mat.hasLegacySpecular   = false;
+
+    // Try PBR textures first
+    loadTextureType(aiMat, aiTextureType_BASE_COLOR, "texture_albedo", textures, mat.hasAlbedoTexture);
+    loadTextureType(aiMat, aiTextureType_METALNESS, "texture_metallic", textures, mat.hasMetallicTexture);
+    loadTextureType(aiMat, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness", textures, mat.hasRoughnessTexture);
+    loadTextureType(aiMat, aiTextureType_NORMALS, "texture_normal", textures, mat.hasNormalTexture);
+
+    // Legacy fallbacks
+    if (!mat.hasAlbedoTexture) {
+        loadTextureType(aiMat, aiTextureType_DIFFUSE, "texture_albedo", textures, mat.hasAlbedoTexture);
+        mat.hasLegacyDiffuse = mat.hasAlbedoTexture;
+    }
+
+    if (!mat.hasMetallicTexture && !mat.hasRoughnessTexture) {
+        loadTextureType(aiMat, aiTextureType_SPECULAR, "texture_specular", textures, mat.hasLegacySpecular);
+    }
+
+    // Try alternative normal map types
+    if (!mat.hasNormalTexture) {
+        loadTextureType(aiMat, aiTextureType_HEIGHT, "texture_normal", textures, mat.hasNormalTexture);
+    }
+
+    LOG_INFO("Texture summary - Albedo: {}, Metallic: {}, Roughness: {}, Normal: {}, LegacySpec: {}", mat.hasAlbedoTexture, mat.hasMetallicTexture, mat.hasRoughnessTexture, mat.hasNormalTexture, mat.hasLegacySpecular);
+}
+
+void Model::loadTextureType(aiMaterial* mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures, bool& hasTexture)
+{
     for (uint32_t i = 0; i < mat->GetTextureCount(type); i++) {
         aiString str;
         mat->GetTexture(type, i, &str);
 
+        // Check if already loaded
         bool skip = false;
         for (uint32_t j = 0; j < m_texturesLoaded.size(); j++) {
             if (std::strcmp(m_texturesLoaded[j].path.data(), str.C_Str()) == 0) {
                 textures.push_back(m_texturesLoaded[j]);
-                skip = true;
+                skip       = true;
+                hasTexture = true;
                 break;
             }
         }
@@ -193,9 +226,9 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
             texture.path = str.C_Str();
             textures.push_back(texture);
             m_texturesLoaded.push_back(texture);
+            hasTexture = true;
         }
     }
-    return textures;
 }
 
 uint32_t Model::textureFromFile(const std::string& path, bool gamma)
