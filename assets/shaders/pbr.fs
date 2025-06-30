@@ -3,6 +3,8 @@
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
+in vec3 Tangent;
+in vec3 Bitangent;
 
 out vec4 FragColor;
 
@@ -115,8 +117,8 @@ vec3 sampleNormal() {
         
         // Simple tangent space calculation (you might want to pass tangents from vertex shader)
         vec3 N = normalize(Normal);
-        vec3 T = normalize(cross(N, vec3(0.0, 1.0, 0.0)));
-        vec3 B = cross(N, T);
+        vec3 T = normalize(Tangent);
+        vec3 B = normalize(Bitangent);
         mat3 TBN = mat3(T, B, N);
         
         return normalize(TBN * normal);

@@ -161,6 +161,16 @@ Material Model::convertAiMaterialToPBR(aiMaterial* aiMat)
         mat.transparency = glm::clamp(value, 0.0f, 1.0f);
     }
 
+    if (mat.albedo.r + mat.albedo.g + mat.albedo.b < 0.1f) {
+        mat.albedo = glm::vec3(0.5f, 0.5f, 0.5f);
+        LOG_INFO("Albedo is too low, setting to 0.5f, 0.5f, 0.5f");
+    }
+
+    if (mat.ao <= 0.0f) {
+        mat.ao = 1.0f;
+        LOG_INFO("AO is too low, setting to 1.0f");
+    }
+
     LOG_INFO("Final material - Albedo: ({:.2f}, {:.2f}, {:.2f}), Metallic: {:.2f}, Roughness: {:.2f}", mat.albedo.r, mat.albedo.g, mat.albedo.b, mat.metallic, mat.roughness);
 
     return mat;
