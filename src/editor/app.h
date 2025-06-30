@@ -5,6 +5,7 @@
 #include "engine/renderer/shader.h"
 #include "engine/renderer/model.h"
 #include "engine/renderer/camera.h"
+#include "engine/renderer/light_manager.h"
 #include "engine/core/window.h"
 #include "editor/app_interface.h"
 #include "editor/tools/line_renderer.h"
@@ -31,16 +32,14 @@ class App : public IApp
     std::unique_ptr<Model>        m_model        = nullptr;
     std::unique_ptr<Camera>       m_camera       = nullptr;
     std::unique_ptr<LineRenderer> m_lineRenderer = nullptr;
+    std::unique_ptr<LightManager> m_lightManager = nullptr;
 
     InputManager* m_inputManager = nullptr;
 
-    bool m_showLightLines = true;
-
-    std::vector<glm::vec3> m_lightPositions;
-    std::vector<glm::vec3> m_lightColors;
+    bool drawLightLines = false;
 
     void processInput(float deltaTime);
-    void setupLightData();
+    void setupLights();
 };
 
 // int main()

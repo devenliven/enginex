@@ -9,7 +9,9 @@ in vec3 Bitangent;
 out vec4 FragColor;
 
 struct Light {
-    vec3 position;
+    int type;           // 0 = directional, 1 = point, 2 = spot
+    vec3 position;      // Used for point lights
+    vec3 direction;     // Used for directional lights
     vec3 color;
     float intensity;
 };
@@ -35,17 +37,18 @@ uniform Light lights[4];
 uniform int numLights;
 uniform vec3 viewPos;
 
-// Texture samplers (not all may be bound)
+// Texture samplers
 uniform sampler2D texture_albedo1;
 uniform sampler2D texture_metallic1;
 uniform sampler2D texture_roughness1;
 uniform sampler2D texture_normal1;
-uniform sampler2D texture_specular1;  // Legacy support
+uniform sampler2D texture_specular1;
 
 const float PI = 3.14159265359;
 
-// Normal Distribution Function (GGX/Trowbridge-Reitz)
-float DistributionGGX(vec3 N, vec3 H, float roughness) {
+// PBR Functions
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
     float a = roughness * roughness;
     float a2 = a * a;
     float NdotH = max(dot(N, H), 0.0);
@@ -58,8 +61,8 @@ float DistributionGGX(vec3 N, vec3 H, float roughness) {
     return num / denom;
 }
 
-// Geometry Function (Smith's method)
-float GeometrySchlickGGX(float NdotV, float roughness) {
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
     float r = (roughness + 1.0);
     float k = (r * r) / 8.0;
 
@@ -69,7 +72,8 @@ float GeometrySchlickGGX(float NdotV, float roughness) {
     return num / denom;
 }
 
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
     float NdotV = max(dot(N, V), 0.0);
     float NdotL = max(dot(N, L), 0.0);
     float ggx2 = GeometrySchlickGGX(NdotV, roughness);
@@ -78,44 +82,47 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
     return ggx1 * ggx2;
 }
 
-// Fresnel Equation (Schlick's approximation)
-vec3 fresnelSchlick(float cosTheta, vec3 F0) {
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-vec3 sampleAlbedo() {
+// Material sampling functions
+vec3 sampleAlbedo()
+{
     if (material.hasAlbedoTexture) {
         vec3 texColor = texture(texture_albedo1, TexCoords).rgb;
-        // Ensure texture color isn't too dark
         texColor = max(texColor, vec3(0.1));
         return pow(texColor, vec3(2.2)) * material.albedo;
     }
     return material.albedo;
 }
 
-float sampleMetallic() {
+float sampleMetallic()
+{
     if (material.hasMetallicTexture) {
         return texture(texture_metallic1, TexCoords).b * material.metallic;
     }
     return material.metallic;
 }
 
-float sampleRoughness() {
+float sampleRoughness()
+{
     if (material.hasRoughnessTexture) {
         return texture(texture_roughness1, TexCoords).g * material.roughness;
     } else if (material.hasLegacySpecular) {
         vec3 specular = texture(texture_specular1, TexCoords).rgb;
         float specularIntensity = dot(specular, vec3(0.299, 0.587, 0.114));
-        return mix(0.2, 0.9, 1.0 - specularIntensity);  // Better conversion
+        return mix(0.2, 0.9, 1.0 - specularIntensity);
     }
     return material.roughness;
 }
 
-vec3 sampleNormal() {
+vec3 sampleNormal()
+{
     if (material.hasNormalTexture) {
         vec3 normal = texture(texture_normal1, TexCoords).rgb * 2.0 - 1.0;
         
-        // Simple tangent space calculation (you might want to pass tangents from vertex shader)
         vec3 N = normalize(Normal);
         vec3 T = normalize(Tangent);
         vec3 B = normalize(Bitangent);
@@ -126,13 +133,12 @@ vec3 sampleNormal() {
     return normalize(Normal);
 }
 
-void main() {
+void main()
+{
     vec3 albedo = sampleAlbedo();
     float metallic = sampleMetallic();
     float roughness = sampleRoughness();
     vec3 N = sampleNormal();
-    
-    // ... rest of PBR calculation remains the same ...
     
     vec3 V = normalize(viewPos - FragPos);
     vec3 F0 = vec3(0.04);
@@ -140,13 +146,24 @@ void main() {
 
     vec3 Lo = vec3(0.0);
     
+    // Calculate lighting contribution from each light
     for(int i = 0; i < numLights && i < 4; ++i) {
-        vec3 L = normalize(lights[i].position - FragPos);
+        vec3 L;
+        vec3 radiance;
+        
+        if (lights[i].type == 0) { // Directional light
+            L = normalize(-lights[i].direction);
+            radiance = lights[i].color * lights[i].intensity;
+        } else { // Point light
+            L = normalize(lights[i].position - FragPos);
+            float distance = length(lights[i].position - FragPos);
+            float attenuation = 1.0 / (distance * distance);
+            radiance = lights[i].color * lights[i].intensity * attenuation;
+        }
+        
         vec3 H = normalize(V + L);
-        float distance = length(lights[i].position - FragPos);
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = lights[i].color * lights[i].intensity * attenuation;
-
+        
+        // PBR calculations
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
         vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
@@ -163,7 +180,7 @@ void main() {
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
 
-    vec3 ambient = vec3(0.1) * albedo * material.ao;  // Increased from 0.03 to 0.1
+    vec3 ambient = vec3(0.1) * albedo * material.ao;
     vec3 color = ambient + Lo + material.emissive;
 
     // HDR tonemapping and gamma correction

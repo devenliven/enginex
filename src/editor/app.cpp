@@ -24,7 +24,8 @@ void App::onInit()
         m_lineRenderer.reset();
     }
 
-    setupLightData();
+    m_lightManager = std::make_unique<LightManager>();
+    setupLights();
 }
 
 void App::onUpdate(float deltaTime)
@@ -50,59 +51,39 @@ void App::onRender()
     // model           = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
     m_shader->setMat4("model", model);
 
-    // Set number of lights
-    m_shader->setInt("numLights", 3);
-
-    // Key light (main illumination) - warm white
-    m_shader->setVec3("lights[0].position", glm::vec3(4.0f, 4.0f, 4.0f));
-    m_shader->setVec3("lights[0].color", glm::vec3(1.0f, 0.95f, 0.8f)); // Slightly warm
-    m_shader->setFloat("lights[0].intensity", 25.0f);                   // Higher intensity for PBR
-
-    // Fill light (softer, cooler) - reduces harsh shadows
-    m_shader->setVec3("lights[1].position", glm::vec3(-3.0f, 2.0f, 3.0f));
-    m_shader->setVec3("lights[1].color", glm::vec3(0.8f, 0.9f, 1.0f)); // Cool blue tint
-    m_shader->setFloat("lights[1].intensity", 12.0f);
-
-    // Rim/back light - adds definition to edges
-    m_shader->setVec3("lights[2].position", glm::vec3(0.0f, -1.0f, -4.0f));
-    m_shader->setVec3("lights[2].color", glm::vec3(1.0f, 1.0f, 1.0f)); // Pure white
-    m_shader->setFloat("lights[2].intensity", 8.0f);
-
+    m_lightManager->updateShaderUniforms(m_shader.get());
     m_model->draw(m_shader.get());
 
-    if (m_showLightLines && m_lineRenderer) {
+    if (m_lineRenderer && drawLightLines) {
         m_lineRenderer->beginFrame(projection * view);
 
         glm::vec3 modelCenter = glm::vec3(0.0f, 0.0f, 0.0f);
-        m_lineRenderer->drawLightLines(modelCenter, m_lightPositions, m_lightColors);
-        // X-axis (red)
-        m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        // Y-axis (green)
-        m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        // Z-axis (blue)
-        m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        // Use light manager for debug visualization
+        m_lightManager->renderDebugVisualization(m_lineRenderer.get(), modelCenter);
+
+        // // Draw coordinate axes
+        // m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        // m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
         m_lineRenderer->endFrame();
     }
-
-    // m_model->draw(m_shader.get());
 }
 
-void App::setupLightData()
+void App::setupLights()
 {
-    m_lightPositions.clear();
-    m_lightColors.clear();
+    // Add a sun light
+    m_lightManager->addLight(Light::createSunLight(glm::vec3(-0.3f, -0.7f, -0.2f)));
 
     // Key light (main illumination) - warm white
-    m_lightPositions.push_back(glm::vec3(4.0f, 4.0f, 4.0f));
-    m_lightColors.push_back(glm::vec3(1.0f, 0.9f, 0.7f)); // Warm yellow-white
+    m_lightManager->addLight(Light::createPointLight(glm::vec3(4.0f, 4.0f, 4.0f), glm::vec3(1.0f, 0.95f, 0.8f), 25.0f));
 
     // Fill light (softer, cooler) - reduces harsh shadows
-    m_lightPositions.push_back(glm::vec3(-3.0f, 2.0f, 3.0f));
-    m_lightColors.push_back(glm::vec3(0.7f, 0.9f, 1.0f)); // Cool blue-white
+    m_lightManager->addLight(Light::createPointLight(glm::vec3(-3.0f, 2.0f, 3.0f), glm::vec3(0.8f, 0.9f, 1.0f), 12.0f));
 
     // Rim/back light - adds definition to edges
-    m_lightPositions.push_back(glm::vec3(0.0f, -1.0f, -4.0f));
-    m_lightColors.push_back(glm::vec3(1.0f, 1.0f, 1.0f)); // Pure white
+    m_lightManager->addLight(Light::createPointLight(glm::vec3(0.0f, -1.0f, -4.0f), glm::vec3(1.0f, 1.0f, 1.0f), 8.0f));
 }
 
 void App::processInput(float deltaTime)
