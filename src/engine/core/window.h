@@ -37,6 +37,7 @@ class Window
     HWND  getHandle() const { return m_hwnd; }
     HDC   getDeviceContext() const { return m_hdc; }
     HGLRC getOpenGLContext() const { return m_hglrc; }
+    void  setUiMode(bool toggle);
 
     void showCursor(bool show);
 
@@ -60,6 +61,7 @@ class Window
     bool        m_isOpen         = false;
     bool        m_cursorVisible  = true;
     bool        m_cursorConfined = false;
+    bool        m_isUiActive     = false;
 
     EventCallback m_eventCallback;
 };

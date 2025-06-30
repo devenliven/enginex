@@ -38,17 +38,9 @@ void App::onUpdate(float deltaTime)
 
 void App::onRender()
 {
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-
-    ImGui::ShowDemoWindow();
-
-    ImGui::Render();
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     m_shader->use();
 
@@ -81,6 +73,20 @@ void App::onRender()
 
         m_lineRenderer->endFrame();
     }
+
+    {
+        ImGui::Begin("Lighting");
+
+        auto& position = m_lightManager->getLight(0)->getPosition();
+        float pos[3]   = {position.x, position.y, position.z};
+
+        if (ImGui::SliderFloat3("X:", pos, -10.0f, 10.0f)) {
+            m_lightManager->getLight(0)->setPosition(glm::vec3(pos[0], pos[1], pos[2]));
+            LOG_INFO("Light X: {}", position.x);
+        }
+
+        ImGui::End();
+    }
 }
 
 void App::setupLights()
@@ -88,7 +94,7 @@ void App::setupLights()
     // Add a sun light
     // m_lightManager->addLight(Light::createSunLight(glm::vec3(-0.3f, -0.7f, -0.2f)));
 
-    // // Key light (main illumination) - warm white
+    // // // Key light (main illumination) - warm white
     // m_lightManager->addLight(Light::createPointLight(glm::vec3(4.0f, 4.0f, 4.0f), glm::vec3(1.0f, 0.95f, 0.8f), 25.0f));
 
     // // Fill light (softer, cooler) - reduces harsh shadows
@@ -97,7 +103,7 @@ void App::setupLights()
     // // Rim/back light - adds definition to edges
     // m_lightManager->addLight(Light::createPointLight(glm::vec3(0.0f, -1.0f, -4.0f), glm::vec3(1.0f, 1.0f, 1.0f), 8.0f));
 
-    m_lightManager->addLight(Light::createSpotLight(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f));
+    m_lightManager->addLight(Light::createSpotLight(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 50.0f));
 }
 
 void App::processInput(float deltaTime)

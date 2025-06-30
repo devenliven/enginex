@@ -8,6 +8,7 @@
 #include "utilities/timer.h"
 
 #include <glad/glad.h>
+#include <backends/imgui_impl_opengl3.h>
 
 class App;
 
@@ -63,8 +64,15 @@ void Engine::run()
 
         m_inputManager->update();
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+
         m_app->onUpdate(deltaTime);
         m_app->onRender();
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         m_window->pollEvents();
         m_window->swapBuffers();

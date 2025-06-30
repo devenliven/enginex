@@ -14,6 +14,8 @@ struct Light {
     vec3 direction;     // Used for directional lights
     vec3 color;
     float intensity;
+    float cutoff;
+    float outerCutoff;
 };
 
 struct Material {
@@ -154,13 +156,24 @@ void main()
         if (lights[i].type == 0) { // Directional light
             L = normalize(-lights[i].direction);
             radiance = lights[i].color * lights[i].intensity;
-        } else { // Point light
+        } else if (lights[i].type == 1) { // Point light
             L = normalize(lights[i].position - FragPos);
             float distance = length(lights[i].position - FragPos);
             float attenuation = 1.0 / (distance * distance);
             radiance = lights[i].color * lights[i].intensity * attenuation;
+        } else if (lights[i].type == 2) { // Spot light
+            vec3 lightDir = normalize(lights[i].position - FragPos);
+            float distance = length(lights[i].position - FragPos);
+            float attenuation = 1.0 / (distance * distance);
+
+            float theta = dot(lightDir, normalize(-lights[i].direction));
+            float epsilon = lights[i].cutoff - lights[i].outerCutoff;
+            float intensity = clamp((theta - lights[i].outerCutoff) / epsilon, 0.0, 1.0);
+
+            L = lightDir;
+            radiance = lights[i].color * lights[i].intensity * attenuation * intensity;
         }
-        
+                
         vec3 H = normalize(V + L);
         
         // PBR calculations

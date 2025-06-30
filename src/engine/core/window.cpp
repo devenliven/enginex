@@ -103,8 +103,9 @@ bool Window::create(const WindowData& data)
     ImGui_ImplWin32_InitForOpenGL(m_hwnd);
     ImGui_ImplOpenGL3_Init();
 
-    confineCursor(true);
-    showCursor(false);
+    // confineCursor(true);
+    // showCursor(false);
+    setUiMode(false);
 
     m_isOpen = true;
     LOG_DEBUG("Window created succesfully: {}x{}", m_width, m_height);
@@ -283,6 +284,22 @@ void Window::confineCursor(bool confine)
     }
 }
 
+void Window::setUiMode(bool toggle)
+{
+    m_isUiActive = toggle;
+    showCursor(m_isUiActive);
+    confineCursor(!m_isUiActive);
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (m_isUiActive) {
+        io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+    } else {
+        io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
+    }
+
+    LOG_INFO("UI Mode Set to: {}", m_isUiActive);
+}
+
 LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -297,7 +314,6 @@ LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-
     switch (uMsg) {
         case WM_CLOSE:
             confineCursor(false);
@@ -350,11 +366,23 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
-            if (m_eventCallback) {
-                int repeatCount = LOWORD(lParam);
-                int scanCode    = (HIWORD(lParam) & 0xFF);
-                m_eventCallback(WindowEvent::KeyPressed, (int)wParam, repeatCount, scanCode);
+            if (wParam == VK_ESCAPE) {
+                exit(0);
             }
+
+            if (wParam == VK_TAB) {
+                LOG_INFO("PRESSED TAB!");
+                setUiMode(!m_isUiActive);
+            }
+
+            if (!ImGui::GetIO().WantCaptureKeyboard && !m_isUiActive) {
+                if (m_eventCallback) {
+                    int repeatCount = LOWORD(lParam);
+                    int scanCode    = (HIWORD(lParam) & 0xFF);
+                    m_eventCallback(WindowEvent::KeyPressed, (int)wParam, repeatCount, scanCode);
+                }
+            }
+
             return 0;
 
         case WM_KEYUP:
@@ -382,14 +410,16 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                     RAWINPUT* raw = (RAWINPUT*)lpb.data();
 
                     if (raw->header.dwType == RIM_TYPEMOUSE) {
-                        if (m_eventCallback) {
-                            int deltaX = raw->data.mouse.lLastX;
-                            int deltaY = raw->data.mouse.lLastY;
-                            m_eventCallback(WindowEvent::MouseMoved, deltaX, deltaY, 0);
+                        if (!m_isUiActive) {
+                            if (m_eventCallback) {
+                                int deltaX = raw->data.mouse.lLastX;
+                                int deltaY = raw->data.mouse.lLastY;
+                                m_eventCallback(WindowEvent::MouseMoved, deltaX, deltaY, 0);
 
-                            if (raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL) {
-                                short wheelDelta = (short)HIWORD(raw->data.mouse.usButtonData);
-                                m_eventCallback(WindowEvent::MouseScrolled, 0, 0, wheelDelta);
+                                if (raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL) {
+                                    short wheelDelta = (short)HIWORD(raw->data.mouse.usButtonData);
+                                    m_eventCallback(WindowEvent::MouseScrolled, 0, 0, wheelDelta);
+                                }
                             }
                         }
                     }

@@ -17,17 +17,23 @@ class Light
     const glm::vec3  getColor() const { return m_color; }
     float            getIntensity() const { return m_intensity; }
     bool             isEnabled() const { return m_enabled; }
+    float            getCutoff() const { return m_cutoff; }
+    float            getOuterCutoff() const { return m_outerCutoff; }
+
+    glm::vec3 getPos() const { return m_position; }
 
     void setPosition(const glm::vec3& position) { m_position = position; }
     void setDirection(const glm::vec3& direction) { m_direction = direction; }
     void setColor(const glm::vec3& color) { m_color = color; }
     void setIntensity(float intensity) { m_intensity = intensity; }
     void setEnabled(bool enabled) { m_enabled = enabled; }
+    void setCutoff(float cutoff) { m_cutoff = cutoff; }
+    void setOuterCuttoff(float cutoff) { m_outerCutoff = cutoff; }
 
     static std::unique_ptr<Light> createDirectionalLight(const glm::vec3& direction, const glm::vec3& color = glm::vec3(1.0f), float intensity = 1.0f);
     static std::unique_ptr<Light> createSunLight(const glm::vec3& direction = glm::vec3(-0.3f, -0.7f, -0.2f));
     static std::unique_ptr<Light> createPointLight(const glm::vec3& position, const glm::vec3& color = glm::vec3(1.0f), float intensity = 1.0f);
-    static std::unique_ptr<Light> createSpotLight(const glm::vec3& position, const glm::vec3& color = glm::vec3(1.0f), float intensity = 1.0f);
+    static std::unique_ptr<Light> createSpotLight(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& color = glm::vec3(1.0f), float intensity = 1.0f);
 
   private:
     Type      m_type;
@@ -36,6 +42,8 @@ class Light
     glm::vec3 m_color;
     float     m_intensity;
     bool      m_enabled;
+    float     m_cutoff;
+    float     m_outerCutoff;
 };
 
 #endif // ENGINE_RENDERER_LIGHT_H_

@@ -27,10 +27,12 @@ void LightManager::clearLights()
 
 Light* LightManager::getLight(size_t index)
 {
-    if (index < m_lights.size()) {
-        return m_lights[index].get();
+    if (index >= m_lights.size()) {
+        LOG_WARN("Tried to access invalid light index {}. Light count: {}", index, m_lights.size());
+        return nullptr;
     }
-    return nullptr;
+
+    return m_lights[index].get();
 }
 
 void LightManager::updateShaderUniforms(Shader* shader) const
@@ -44,14 +46,18 @@ void LightManager::updateShaderUniforms(Shader* shader) const
         if (!light || !light->isEnabled()) continue;
 
         std::string uniformBase = "lights[" + std::to_string(i) + "]";
-        shader->setVec3(uniformBase + ".position", light->getPosition());
         shader->setVec3(uniformBase + ".color", light->getColor());
         shader->setFloat(uniformBase + ".intensity", light->getIntensity());
 
-        if (light->getType() == Light::DIRECTIONAL) {
-            shader->setVec3(uniformBase + ".direction", light->getDirection());
-        } else {
-            shader->setVec3(uniformBase + ".position", light->getPosition());
+        switch (light->getType()) {
+            case Light::DIRECTIONAL: shader->setVec3(uniformBase + ".direction", light->getDirection()); break;
+            case Light::POINT: shader->setVec3(uniformBase + ".position", light->getPosition()); break;
+            case Light::SPOT:
+                shader->setVec3(uniformBase + ".position", light->getPosition());
+                shader->setVec3(uniformBase + ".direction", light->getDirection());
+                shader->setFloat(uniformBase + ".cutoff", light->getCutoff());
+                shader->setFloat(uniformBase + ".outerCutoff", light->getOuterCutoff());
+                break;
         }
     }
 }
@@ -61,13 +67,13 @@ void LightManager::renderDebugVisualization(LineRenderer* renderer, const glm::v
     if (!renderer) return;
 
     for (const auto& light : m_lights) {
-        if (light && light->isEnabled()) {
-            if (light->getType() == Light::DIRECTIONAL) {
-                glm::vec3 directionEnd = modelCenter - light->getDirection() * 5.0f;
-                renderer->drawLine(modelCenter, directionEnd, light->getColor());
-            } else {
-                renderer->drawLine(modelCenter, light->getPosition(), light->getColor());
-            }
+        if (!light || !light->isEnabled()) continue;
+
+        if (light->getType() == Light::DIRECTIONAL) {
+            glm::vec3 directionEnd = modelCenter - light->getDirection() * 5.0f;
+            renderer->drawLine(modelCenter, directionEnd, light->getColor());
+        } else {
+            renderer->drawLine(modelCenter, light->getPosition(), light->getColor());
         }
     }
 }
