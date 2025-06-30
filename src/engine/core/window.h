@@ -4,8 +4,11 @@
 #include <windows.h>
 #include <string>
 #include <functional>
+#include <backends/imgui_impl_win32.h>
 
 #include "engine/core/win32/os.h"
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 struct WindowData {
     std::string title;

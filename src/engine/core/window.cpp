@@ -7,7 +7,6 @@
 
 #include <imgui.h>
 #include <backends/imgui_impl_opengl3.h>
-#include <backends/imgui_impl_win32.h>
 
 #include <glad/glad.h>
 #include <hidusage.h>
@@ -287,6 +286,7 @@ void Window::confineCursor(bool confine)
 LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam)) return true;
 
     if (window) {
         return window->HandleMessage(uMsg, wParam, lParam);
@@ -297,6 +297,7 @@ LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+
     switch (uMsg) {
         case WM_CLOSE:
             confineCursor(false);
