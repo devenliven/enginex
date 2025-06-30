@@ -7,6 +7,7 @@
 #include "engine/renderer/camera.h"
 #include "engine/core/window.h"
 #include "editor/app_interface.h"
+#include "editor/tools/line_renderer.h"
 
 #include <memory>
 
@@ -26,13 +27,20 @@ class App : public IApp
     void setInputManager(InputManager* inputManager) { m_inputManager = inputManager; }
 
   private:
-    std::unique_ptr<Shader> m_shader = nullptr;
-    std::unique_ptr<Model>  m_model  = nullptr;
-    std::unique_ptr<Camera> m_camera = nullptr;
+    std::unique_ptr<Shader>       m_shader       = nullptr;
+    std::unique_ptr<Model>        m_model        = nullptr;
+    std::unique_ptr<Camera>       m_camera       = nullptr;
+    std::unique_ptr<LineRenderer> m_lineRenderer = nullptr;
 
     InputManager* m_inputManager = nullptr;
 
+    bool m_showLightLines = true;
+
+    std::vector<glm::vec3> m_lightPositions;
+    std::vector<glm::vec3> m_lightColors;
+
     void processInput(float deltaTime);
+    void setupLightData();
 };
 
 // int main()

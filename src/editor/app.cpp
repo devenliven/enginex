@@ -17,6 +17,14 @@ void App::onInit()
     m_shader = std::make_unique<Shader>("pbr.vs", "pbr.fs");
     m_model  = std::make_unique<Model>("assets/models/chair/modern_arm_chair_01_1k.gltf");
     // m_model = std::make_unique<Model>("assets/models/toycar/toycar.gltf");
+
+    m_lineRenderer = std::make_unique<LineRenderer>();
+    if (!m_lineRenderer->initialize()) {
+        LOG_ERROR("Failed to initialize line renderer!");
+        m_lineRenderer.reset();
+    }
+
+    setupLightData();
 }
 
 void App::onUpdate(float deltaTime)
@@ -61,6 +69,40 @@ void App::onRender()
     m_shader->setFloat("lights[2].intensity", 8.0f);
 
     m_model->draw(m_shader.get());
+
+    if (m_showLightLines && m_lineRenderer) {
+        m_lineRenderer->beginFrame(projection * view);
+
+        glm::vec3 modelCenter = glm::vec3(0.0f, 0.0f, 0.0f);
+        m_lineRenderer->drawLightLines(modelCenter, m_lightPositions, m_lightColors);
+        // X-axis (red)
+        m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        // Y-axis (green)
+        m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        // Z-axis (blue)
+        m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        m_lineRenderer->endFrame();
+    }
+
+    // m_model->draw(m_shader.get());
+}
+
+void App::setupLightData()
+{
+    m_lightPositions.clear();
+    m_lightColors.clear();
+
+    // Key light (main illumination) - warm white
+    m_lightPositions.push_back(glm::vec3(4.0f, 4.0f, 4.0f));
+    m_lightColors.push_back(glm::vec3(1.0f, 0.9f, 0.7f)); // Warm yellow-white
+
+    // Fill light (softer, cooler) - reduces harsh shadows
+    m_lightPositions.push_back(glm::vec3(-3.0f, 2.0f, 3.0f));
+    m_lightColors.push_back(glm::vec3(0.7f, 0.9f, 1.0f)); // Cool blue-white
+
+    // Rim/back light - adds definition to edges
+    m_lightPositions.push_back(glm::vec3(0.0f, -1.0f, -4.0f));
+    m_lightColors.push_back(glm::vec3(1.0f, 1.0f, 1.0f)); // Pure white
 }
 
 void App::processInput(float deltaTime)
