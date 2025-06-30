@@ -5,6 +5,10 @@
 #include "utilities/logger.h"
 #include "utilities/stb_image.h"
 
+#include <imgui.h>
+#include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_win32.h>
+
 #include <glad/glad.h>
 #include <hidusage.h>
 
@@ -88,6 +92,17 @@ bool Window::create(const WindowData& data)
 
     ShowWindow(m_hwnd, SW_SHOW);
     UpdateWindow(m_hwnd);
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplWin32_InitForOpenGL(m_hwnd);
+    ImGui_ImplOpenGL3_Init();
 
     confineCursor(true);
     showCursor(false);

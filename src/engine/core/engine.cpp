@@ -8,6 +8,9 @@
 #include "utilities/timer.h"
 
 #include <glad/glad.h>
+#include <imgui.h>
+#include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_win32.h>
 
 class App;
 
@@ -62,6 +65,10 @@ void Engine::run()
         float deltaTime = timer.getDeltaTime();
 
         m_inputManager->update();
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
 
         m_app->onUpdate(deltaTime);
         m_app->onRender();

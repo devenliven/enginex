@@ -31,3 +31,8 @@ std::unique_ptr<Light> Light::createPointLight(const glm::vec3& position, const 
 {
     return std::make_unique<Light>(POINT, position, color, intensity);
 }
+
+std::unique_ptr<Light> Light::createSpotLight(const glm::vec3& position, const glm::vec3& color, float intensity)
+{
+    return std::make_unique<Light>(SPOT, position, color, intensity);
+}

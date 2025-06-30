@@ -14,7 +14,8 @@
                 "${workspaceFolder}/3rdparty/glm",
                 "${workspaceFolder}/3rdparty/glad/include",
                 "${workspaceFolder}/3rdparty/assimp/include",
-                "${workspaceFolder}/3rdparty/configs"
+                "${workspaceFolder}/3rdparty/configs",
+                "${workspaceFolder}/3rdparty/imgui"
             ],
             "defines": [
                 "_DEBUG",

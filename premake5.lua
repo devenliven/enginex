@@ -6,7 +6,7 @@ solution "enginex"
     cppdialect "C++20"
     location "projects"
     debugdir "%{prj.location}../"
-    defines { "WIN32", "_WIN32", "WIN32_LEAN_AND_MEAN", "__STDC_FORMAT_MACROS", "NOMINMAX" }
+    defines { "WIN32", "_WIN32", "WIN32_LEAN_AND_MEAN", "__STDC_FORMAT_MACROS", "NOMINMAX", }
     buildoptions { "/utf-8" }
     
     filter "configurations:Release"
@@ -21,11 +21,13 @@ solution "enginex"
         pchsource "src/pch.cpp"
         characterset "mbcs"
         buildoptions { "/Zc:__cplusplus", "/Zc:char8_t-" }
-        
+        defines { "IMGUI_DISABLE_OBSOLETE_FUNCTIONS", "IMGUI_DEFINE_MATH_OPERATORS" }
+
         links {
             "spdlog",
             "glad",
-            "assimp"
+            "assimp",
+            "imgui"
         }
 
         includedirs {
@@ -33,6 +35,7 @@ solution "enginex"
             "3rdparty/glm",
             "3rdparty/glad/include",
             "3rdparty/assimp/include",
+            "3rdparty/imgui",
             "src/"
         }
 
@@ -104,7 +107,27 @@ solution "enginex"
             filter "configurations:Debug*"
                 optimize "off"
                 symbols "on"
-        
+
+        project "imgui"
+            kind "staticlib"
+            language "c++"
+            defines { "IMGUI_DISABLE_OBSOLETE_FUNCTIONS", "IMGUI_DEFINE_MATH_OPERATORS" }
+            files {
+                "3rdparty/imgui/imgui.cpp",
+                "3rdparty/imgui/imgui.h",
+                "3rdparty/imgui/imgui_internal.h",
+                "3rdparty/imgui/imgui_tables.cpp",
+                "3rdparty/imgui/imgui_widgets.cpp",
+                "3rdparty/imgui/imgui_draw.cpp",
+                "3rdparty/imgui/imgui_demo.cpp",
+                "3rdparty/imgui/backends/imgui_impl_opengl3.cpp",
+                "3rdparty/imgui/backends/imgui_impl_win32.cpp"
+            }
+            includedirs {
+                "3rdparty/imgui",
+                "3rpdarty/imgui/backends"
+            }
+
         project "assimp"
             kind "staticlib"
             defines { "RAPIDJSON_HAS_STDSTRING" }

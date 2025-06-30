@@ -25,10 +25,9 @@ class Light
     void setEnabled(bool enabled) { m_enabled = enabled; }
 
     static std::unique_ptr<Light> createDirectionalLight(const glm::vec3& direction, const glm::vec3& color = glm::vec3(1.0f), float intensity = 1.0f);
-
     static std::unique_ptr<Light> createSunLight(const glm::vec3& direction = glm::vec3(-0.3f, -0.7f, -0.2f));
-
     static std::unique_ptr<Light> createPointLight(const glm::vec3& position, const glm::vec3& color = glm::vec3(1.0f), float intensity = 1.0f);
+    static std::unique_ptr<Light> createSpotLight(const glm::vec3& position, const glm::vec3& color = glm::vec3(1.0f), float intensity = 1.0f);
 
   private:
     Type      m_type;
