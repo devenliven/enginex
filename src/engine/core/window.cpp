@@ -370,8 +370,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 exit(0);
             }
 
-            if (wParam == VK_TAB) {
-                LOG_INFO("PRESSED TAB!");
+            if (wParam == VK_F1) {
                 setUiMode(!m_isUiActive);
             }
 

@@ -33,6 +33,11 @@ void App::onInit()
 
 void App::onUpdate(float deltaTime)
 {
+    float       fps       = 1.0f / deltaTime;
+    std::string fpsFormat = std::format("FPS: {}", fps);
+    ImDrawList* draw      = ImGui::GetForegroundDrawList();
+
+    draw->AddText(ImVec2(0, 0), ImColor(255, 255, 255, 255), fpsFormat.c_str());
     processInput(deltaTime);
 }
 
@@ -77,13 +82,41 @@ void App::onRender()
     {
         ImGui::Begin("Lighting");
 
-        auto& position = m_lightManager->getLight(0)->getPosition();
-        float pos[3]   = {position.x, position.y, position.z};
+        for (int i = 0; i < m_lightManager->getLightCount(); i++) {
+            auto light = m_lightManager->getLight(i);
+            ImGui::Text("%s Light", light->getTypeName().c_str());
 
-        if (ImGui::SliderFloat3("X:", pos, -10.0f, 10.0f)) {
-            m_lightManager->getLight(0)->setPosition(glm::vec3(pos[0], pos[1], pos[2]));
-            LOG_INFO("Light X: {}", position.x);
+            auto& position = light->getPosition();
+            float pos[3]   = {position.x, position.y, position.z};
+
+            std::string label;
+
+            label = std::format("X##%d", i);
+            if (ImGui::SliderFloat(label.c_str(), &pos[0], -10.0f, 10.0f)) {
+                LOG_INFO("X: {}", pos[0]);
+                light->setPosition(glm::vec3(pos[0], pos[1], pos[2]));
+            }
+
+            label = std::format("Y##%d", i);
+            if (ImGui::SliderFloat(label.c_str(), &pos[1], -10.0f, 10.0f)) {
+                LOG_INFO("Y: {}", pos[1]);
+                light->setPosition(glm::vec3(pos[0], pos[1], pos[2]));
+            }
+
+            label = std::format("Z##%d", i);
+            if (ImGui::SliderFloat(label.c_str(), &pos[2], -10.0f, 10.0f)) {
+                LOG_INFO("Z: {}", pos[2]);
+                light->setPosition(glm::vec3(pos[0], pos[1], pos[2]));
+            }
         }
+
+        // auto& position = m_lightManager->getLight(0)->getPosition();
+        // float pos[3]   = {position.x, position.y, position.z};
+
+        // if (ImGui::SliderFloat3("X:", pos, -10.0f, 10.0f)) {
+        //     m_lightManager->getLight(0)->setPosition(glm::vec3(pos[0], pos[1], pos[2]));
+        //     LOG_INFO("Light X: {}", position.x);
+        // }
 
         ImGui::End();
     }

@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <memory>
+#include <string>
 
 class Light
 {
@@ -19,8 +20,17 @@ class Light
     bool             isEnabled() const { return m_enabled; }
     float            getCutoff() const { return m_cutoff; }
     float            getOuterCutoff() const { return m_outerCutoff; }
-
-    glm::vec3 getPos() const { return m_position; }
+    std::string      getTypeName()
+    {
+        if (m_type == Type::DIRECTIONAL) {
+            return "Directional";
+        } else if (m_type == Type::POINT) {
+            return "Point";
+        } else if (m_type == Type::SPOT) {
+            return "Spot";
+        }
+        return "Unknown";
+    }
 
     void setPosition(const glm::vec3& position) { m_position = position; }
     void setDirection(const glm::vec3& direction) { m_direction = direction; }
