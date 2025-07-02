@@ -14,7 +14,7 @@ class App;
 
 Engine::~Engine()
 {
-    //
+    cleanup();
 }
 
 bool Engine::init(std::shared_ptr<IApp> app)
@@ -47,6 +47,32 @@ bool Engine::init(std::shared_ptr<IApp> app)
     return true;
 }
 
+void Engine::cleanup()
+{
+    LOG_INFO("Engine: Shutting down!");
+
+    if (m_window && m_window->getOpenGLContext()) {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext();
+    }
+
+    if (m_app) {
+        m_app.reset();
+    }
+
+    if (m_inputManager) {
+        m_inputManager->clearAllStates();
+        m_inputManager.reset();
+    }
+
+    if (m_window) {
+        m_window.reset();
+    }
+
+    LOG_INFO("Engine: Shutdown complete!");
+}
+
 void Engine::run()
 {
     if (!m_window) {
@@ -77,6 +103,8 @@ void Engine::run()
         m_window->pollEvents();
         m_window->swapBuffers();
     }
+
+    cleanup();
 }
 
 void Engine::handleWindowEvent(WindowEvent event, int param1, int param2, int param3)
@@ -87,6 +115,7 @@ void Engine::handleWindowEvent(WindowEvent event, int param1, int param2, int pa
                 glViewport(0, 0, param1, param2);
                 // m_app->onWindowResize(param1, param2);
             }
+            break;
         }
         case WindowEvent::KeyPressed: {
             KeyCode key         = static_cast<KeyCode>(param1);
@@ -102,6 +131,7 @@ void Engine::handleWindowEvent(WindowEvent event, int param1, int param2, int pa
         case WindowEvent::KeyReleased: {
             KeyCode key = static_cast<KeyCode>(param1);
             m_inputManager->onKeyUp(key);
+            break;
         }
         case WindowEvent::MouseButtonPressed: {
             MouseButton button = static_cast<MouseButton>(param1);

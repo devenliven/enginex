@@ -273,7 +273,15 @@ uint32_t Model::textureFromFile(const std::string& path, bool gamma)
         stbi_image_free(data);
     } else {
         LOG_ERROR("Texture failed to load at path: {}", path);
-        stbi_image_free(data);
+
+        // ← ADD: Create a default 1x1 white texture instead of returning 0
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        unsigned char defaultPixel[4] = {255, 255, 255, 255};
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, defaultPixel);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
     return textureId;

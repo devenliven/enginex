@@ -16,6 +16,7 @@ class Engine
 
     bool init(std::shared_ptr<IApp> app);
     void run();
+    void cleanup();
 
     int setWindowWidth(int width) { m_windowWidth = width; }
     int setWindowHeight(int height) { m_windowHeight = height; }

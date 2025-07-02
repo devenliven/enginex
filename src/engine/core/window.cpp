@@ -111,6 +111,11 @@ bool Window::create(const WindowData& data)
 
 void Window::destroy()
 {
+    LOG_INFO("Window: Attempting to destroy window.");
+
+    confineCursor(false);
+    showCursor(true);
+
     if (m_hglrc) {
         wglMakeCurrent(nullptr, nullptr);
         wglDeleteContext(m_hglrc);
@@ -127,8 +132,11 @@ void Window::destroy()
         m_hwnd = nullptr;
     }
 
+    HINSTANCE hInstance = GetModuleHandle(nullptr);
+    UnregisterClass("EngineWindowClass", hInstance);
+
     m_isOpen = false;
-    LOG_DEBUG("Window destroyed.");
+    LOG_DEBUG("Window: Window destroyed!");
 }
 
 void Window::pollEvents()
@@ -320,9 +328,6 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             confineCursor(false);
             showCursor(true);
             m_isOpen = false;
-            if (m_eventCallback) {
-                // m_eventCallback(WindowEvent::Close, 0, 0, 0);
-            }
             return 0;
 
         case WM_SIZE:
@@ -363,6 +368,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case WM_EXITSIZEMOVE: {
             showCursor(false);
+            return 0;
         }
 
         case WM_KEYDOWN:
