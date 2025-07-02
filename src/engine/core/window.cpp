@@ -312,6 +312,7 @@ LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
+// In window.cpp - Updated HandleMessage method
 LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
@@ -374,6 +375,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 setUiMode(!m_isUiActive);
             }
 
+            // FIX: Check both UI mode AND if ImGui wants the keyboard
             if (!ImGui::GetIO().WantCaptureKeyboard && !m_isUiActive) {
                 if (m_eventCallback) {
                     int repeatCount = LOWORD(lParam);
@@ -381,14 +383,16 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                     m_eventCallback(WindowEvent::KeyPressed, (int)wParam, repeatCount, scanCode);
                 }
             }
-
             return 0;
 
         case WM_KEYUP:
         case WM_SYSKEYUP:
-            if (m_eventCallback) {
-                int scanCode = (HIWORD(lParam) & 0xFF);
-                m_eventCallback(WindowEvent::KeyReleased, (int)wParam, 0, scanCode);
+            // FIX: Check if ImGui wants the keyboard before processing
+            if (!ImGui::GetIO().WantCaptureKeyboard) {
+                if (m_eventCallback) {
+                    int scanCode = (HIWORD(lParam) & 0xFF);
+                    m_eventCallback(WindowEvent::KeyReleased, (int)wParam, 0, scanCode);
+                }
             }
             return 0;
 
@@ -409,7 +413,8 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                     RAWINPUT* raw = (RAWINPUT*)lpb.data();
 
                     if (raw->header.dwType == RIM_TYPEMOUSE) {
-                        if (!m_isUiActive) {
+                        // FIX: Check both UI mode AND if ImGui wants the mouse
+                        if (!m_isUiActive && !ImGui::GetIO().WantCaptureMouse) {
                             if (m_eventCallback) {
                                 int deltaX = raw->data.mouse.lLastX;
                                 int deltaY = raw->data.mouse.lLastY;
@@ -428,28 +433,41 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
 
         case WM_LBUTTONDOWN:
-            if (m_eventCallback) {
-                m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Left, 0, 0);
+            // FIX: Check if ImGui wants the mouse before processing
+            if (!ImGui::GetIO().WantCaptureMouse) {
+                if (m_eventCallback) {
+                    m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Left, 0, 0);
+                }
             }
             return 0;
 
         case WM_LBUTTONUP:
-            if (m_eventCallback) {
-                m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Left, 0, 0);
+            // FIX: Check if ImGui wants the mouse before processing
+            if (!ImGui::GetIO().WantCaptureMouse) {
+                if (m_eventCallback) {
+                    m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Left, 0, 0);
+                }
             }
             return 0;
 
         case WM_RBUTTONDOWN:
-            if (m_eventCallback) {
-                m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Right, 0, 0);
+            // FIX: Check if ImGui wants the mouse before processing
+            if (!ImGui::GetIO().WantCaptureMouse) {
+                if (m_eventCallback) {
+                    m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Right, 0, 0);
+                }
             }
             return 0;
 
         case WM_RBUTTONUP:
-            if (m_eventCallback) {
-                m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Right, 0, 0);
+            // FIX: Check if ImGui wants the mouse before processing
+            if (!ImGui::GetIO().WantCaptureMouse) {
+                if (m_eventCallback) {
+                    m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Right, 0, 0);
+                }
             }
             return 0;
+
         default: return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
     }
 }

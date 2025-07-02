@@ -46,6 +46,9 @@ void LightManager::updateShaderUniforms(Shader* shader) const
         if (!light || !light->isEnabled()) continue;
 
         std::string uniformBase = "lights[" + std::to_string(i) + "]";
+
+        shader->setInt(uniformBase + ".type", static_cast<int>(light->getType()));
+
         shader->setVec3(uniformBase + ".color", light->getColor());
         shader->setFloat(uniformBase + ".intensity", light->getIntensity());
 

@@ -127,21 +127,28 @@ void App::setupLights()
     // Add a sun light
     // m_lightManager->addLight(Light::createSunLight(glm::vec3(-0.3f, -0.7f, -0.2f)));
 
-    // // // Key light (main illumination) - warm white
-    // m_lightManager->addLight(Light::createPointLight(glm::vec3(4.0f, 4.0f, 4.0f), glm::vec3(1.0f, 0.95f, 0.8f), 25.0f));
+    // // Key light (main illumination) - warm white
+    m_lightManager->addLight(Light::createPointLight(glm::vec3(4.0f, 4.0f, 4.0f), glm::vec3(1.0f, 0.95f, 0.8f), 25.0f));
 
-    // // Fill light (softer, cooler) - reduces harsh shadows
-    // m_lightManager->addLight(Light::createPointLight(glm::vec3(-3.0f, 2.0f, 3.0f), glm::vec3(0.8f, 0.9f, 1.0f), 12.0f));
+    // Fill light (softer, cooler) - reduces harsh shadows
+    m_lightManager->addLight(Light::createPointLight(glm::vec3(-3.0f, 2.0f, 3.0f), glm::vec3(0.8f, 0.9f, 1.0f), 12.0f));
 
-    // // Rim/back light - adds definition to edges
-    // m_lightManager->addLight(Light::createPointLight(glm::vec3(0.0f, -1.0f, -4.0f), glm::vec3(1.0f, 1.0f, 1.0f), 8.0f));
+    // Rim/back light - adds definition to edges
+    m_lightManager->addLight(Light::createPointLight(glm::vec3(0.0f, -1.0f, -4.0f), glm::vec3(1.0f, 1.0f, 1.0f), 8.0f));
 
-    m_lightManager->addLight(Light::createSpotLight(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 50.0f));
+    // m_lightManager->addLight(Light::createSpotLight(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 50.0f));
 }
 
+// In app.cpp - Updated processInput method
 void App::processInput(float deltaTime)
 {
     if (!m_inputManager || !m_camera) return;
+
+    // FIX: Don't process camera input when ImGui wants keyboard/mouse input
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureKeyboard || io.WantCaptureMouse) {
+        return;
+    }
 
     float speedMultiplier = m_inputManager->isKeyPressed(KeyCode::Shift) ? 3.0f : 1.0f;
 
