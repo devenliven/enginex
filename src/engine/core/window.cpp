@@ -66,7 +66,6 @@ bool Window::create(const WindowData& data)
     }
 
     SetWindowLongPtr(m_hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-    // stbi_set_flip_vertically_on_load(true);
 
     m_hdc = GetDC(m_hwnd);
     if (!m_hdc) {
@@ -103,8 +102,6 @@ bool Window::create(const WindowData& data)
     ImGui_ImplWin32_InitForOpenGL(m_hwnd);
     ImGui_ImplOpenGL3_Init();
 
-    // confineCursor(true);
-    // showCursor(false);
     setUiMode(false);
 
     m_isOpen = true;
@@ -206,11 +203,9 @@ bool Window::createOpenGLContext()
         m_hglrc = wglCreateContextAttribsARB(m_hdc, nullptr, contextAttribs);
     }
 
-    // Clean up temporary context
     wglMakeCurrent(nullptr, nullptr);
     wglDeleteContext(tempContext);
 
-    // Fall back to basic context if modern creation failed
     if (!m_hglrc) {
         LOG_WARN("Failed to create modern OpenGL context, falling back to basic context");
         m_hglrc = wglCreateContext(m_hdc);
@@ -292,9 +287,9 @@ void Window::setUiMode(bool toggle)
 
     ImGuiIO& io = ImGui::GetIO();
     if (m_isUiActive) {
-        io.ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+        io.ConfigFlags &= ~(ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard);
     } else {
-        io.ConfigFlags |= ImGuiConfigFlags_NoMouse;
+        io.ConfigFlags |= (ImGuiConfigFlags_NoMouse | ImGuiConfigFlags_NoKeyboard);
     }
 
     LOG_INFO("UI Mode Set to: {}", m_isUiActive);
@@ -303,7 +298,12 @@ void Window::setUiMode(bool toggle)
 LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-    if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam)) return true;
+
+    if (window && window->m_isUiActive) {
+        if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam)) {
+            return true;
+        }
+    }
 
     if (window) {
         return window->HandleMessage(uMsg, wParam, lParam);
@@ -375,20 +375,16 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 setUiMode(!m_isUiActive);
             }
 
-            // FIX: Check both UI mode AND if ImGui wants the keyboard
-            if (!ImGui::GetIO().WantCaptureKeyboard && !m_isUiActive) {
-                if (m_eventCallback) {
-                    int repeatCount = LOWORD(lParam);
-                    int scanCode    = (HIWORD(lParam) & 0xFF);
-                    m_eventCallback(WindowEvent::KeyPressed, (int)wParam, repeatCount, scanCode);
-                }
+            if (!m_isUiActive && m_eventCallback) {
+                int repeatCount = LOWORD(lParam);
+                int scanCode    = (HIWORD(lParam) & 0xFF);
+                m_eventCallback(WindowEvent::KeyPressed, (int)wParam, repeatCount, scanCode);
             }
             return 0;
 
         case WM_KEYUP:
         case WM_SYSKEYUP:
-            // FIX: Check if ImGui wants the keyboard before processing
-            if (!ImGui::GetIO().WantCaptureKeyboard) {
+            if (!m_isUiActive && !ImGui::GetIO().WantCaptureKeyboard) {
                 if (m_eventCallback) {
                     int scanCode = (HIWORD(lParam) & 0xFF);
                     m_eventCallback(WindowEvent::KeyReleased, (int)wParam, 0, scanCode);
@@ -413,7 +409,6 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                     RAWINPUT* raw = (RAWINPUT*)lpb.data();
 
                     if (raw->header.dwType == RIM_TYPEMOUSE) {
-                        // FIX: Check both UI mode AND if ImGui wants the mouse
                         if (!m_isUiActive && !ImGui::GetIO().WantCaptureMouse) {
                             if (m_eventCallback) {
                                 int deltaX = raw->data.mouse.lLastX;
@@ -433,8 +428,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
 
         case WM_LBUTTONDOWN:
-            // FIX: Check if ImGui wants the mouse before processing
-            if (!ImGui::GetIO().WantCaptureMouse) {
+            if (!m_isUiActive && !ImGui::GetIO().WantCaptureMouse) {
                 if (m_eventCallback) {
                     m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Left, 0, 0);
                 }
@@ -442,7 +436,6 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_LBUTTONUP:
-            // FIX: Check if ImGui wants the mouse before processing
             if (!ImGui::GetIO().WantCaptureMouse) {
                 if (m_eventCallback) {
                     m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Left, 0, 0);
@@ -451,7 +444,6 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_RBUTTONDOWN:
-            // FIX: Check if ImGui wants the mouse before processing
             if (!ImGui::GetIO().WantCaptureMouse) {
                 if (m_eventCallback) {
                     m_eventCallback(WindowEvent::MouseButtonPressed, (int)MouseButton::Right, 0, 0);
@@ -460,7 +452,6 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_RBUTTONUP:
-            // FIX: Check if ImGui wants the mouse before processing
             if (!ImGui::GetIO().WantCaptureMouse) {
                 if (m_eventCallback) {
                     m_eventCallback(WindowEvent::MouseButtonReleased, (int)MouseButton::Right, 0, 0);
