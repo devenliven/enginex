@@ -8,9 +8,9 @@ Light::Light(Type type, const glm::vec3& position, const glm::vec3& color, float
     , m_color(color)
     , m_intensity(intensity)
     , m_enabled(true)
-    , m_direction(0.0f, -1.0f, 0.0f) // default direction
+    , m_direction(0.0f, -1.0f, 0.0f)
 {
-    // Direction is now explicitly set in the factory method when needed.
+    //
 }
 
 std::unique_ptr<Light> Light::createDirectionalLight(const glm::vec3& direction, const glm::vec3& color, float intensity)

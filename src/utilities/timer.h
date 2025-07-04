@@ -18,7 +18,6 @@ class Timer
         LARGE_INTEGER currentTime;
         QueryPerformanceCounter(&currentTime);
 
-        // Convert to seconds
         return static_cast<float>(currentTime.QuadPart - m_startTime.QuadPart) / static_cast<float>(m_frequency.QuadPart);
     }
 

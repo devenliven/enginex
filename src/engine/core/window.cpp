@@ -34,7 +34,6 @@ bool Window::create(const WindowData& data)
     m_width  = data.width;
     m_height = data.height;
 
-    // Register window class
     WNDCLASSEX wc        = {};
     HINSTANCE  hInstance = GetModuleHandle(nullptr);
     wc.cbSize            = sizeof(WNDCLASSEXW);
@@ -200,7 +199,6 @@ bool Window::createOpenGLContext()
     PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 
     if (wglCreateContextAttribsARB) {
-        // Create OpenGL 4.6 Core context
         const int contextAttribs[] = {
             0x2091, 4,          // WGL_CONTEXT_MAJOR_VERSION_ARB
             0x2092, 6,          // WGL_CONTEXT_MINOR_VERSION_ARB
@@ -320,7 +318,6 @@ LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-// In window.cpp - Updated HandleMessage method
 LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {

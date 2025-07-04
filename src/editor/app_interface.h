@@ -12,12 +12,10 @@ class IApp
     virtual void onUpdate(float deltaTime) = 0;
     virtual void onRender()                = 0;
 
-    // Event callbacks
     virtual void onWindowResize(int newWidth, int newHeight) {}
     virtual void onKeyPressed(KeyCode key, int repeatCount) {}
     virtual void onKeyReleased(KeyCode key) {}
 
-    // Input manager setter
     virtual void setInputManager(class InputManager* inputManager) = 0;
 };
 

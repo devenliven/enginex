@@ -23,7 +23,6 @@ void Mesh::draw(Shader* shader)
     shader->setVec3("material.emissive", m_material.emissive);
     shader->setFloat("material.transparency", m_material.transparency);
 
-    // Set texture availability flags
     shader->setBool("material.hasAlbedoTexture", m_material.hasAlbedoTexture);
     shader->setBool("material.hasMetallicTexture", m_material.hasMetallicTexture);
     shader->setBool("material.hasRoughnessTexture", m_material.hasRoughnessTexture);

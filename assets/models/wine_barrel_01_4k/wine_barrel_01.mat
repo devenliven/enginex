@@ -1,0 +1,26 @@
+"wine_barrel_01" {
+	"shader" "data/shaders/standard.shader"
+	"double_sided" true
+	"properties" {
+		"Color" {
+			1.000000 : 3f800000
+			1.000000 : 3f800000
+			1.000000 : 3f800000
+			1.000000 : 3f800000
+		}
+		"Emission" {
+			0.000000 : 0
+			0.000000 : 0
+			0.000000 : 0
+			1.000000 : 3f800000
+		}
+		"Metalness" 1.000000 : 3f800000
+		"Roughness" 1.000000 : 3f800000
+		"Alpha Ref" 0.500000 : 3f000000
+		"Albedo Map" "data/models/wine_barrel_01_4k/textures/wine_barrel_01_diff_4k.jpg"
+		"Normal Map" "data/models/wine_barrel_01_4k/textures/wine_barrel_01_nor_dx_4k.jpg"
+		"Metalness Map" "data/models/wine_barrel_01_4k/textures/wine_barrel_01_metallic_4k.jpg"
+		"Roughness Map" "data/models/wine_barrel_01_4k/textures/wine_barrel_01_roughness_4k.jpg"
+		"AO Map" "data/textures/dummy_dif.dds"
+	}
+}

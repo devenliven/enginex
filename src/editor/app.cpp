@@ -18,9 +18,9 @@ void App::onInit()
 {
     m_camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
     m_shader = std::make_unique<Shader>("pbr.vs", "pbr.fs");
-    m_model  = std::make_unique<Model>("assets/models/chair/modern_arm_chair_01_1k.gltf");
-    // m_model = std::make_unique<Model>("assets/models/toycar/toycar.gltf");
-
+    // m_model  = std::make_unique<Model>("assets/models/chair/modern_arm_chair_01_1k.gltf");
+    // m_model        = std::make_unique<Model>("assets/models/corrugated_iron_4k/corrugated_iron_4k.gltf");
+    m_model        = std::make_unique<Model>("assets/models/korean_fire_extinguisher_01_4k/korean_fire_extinguisher_01_4k.gltf");
     m_lineRenderer = std::make_unique<LineRenderer>();
     if (!m_lineRenderer->initialize()) {
         LOG_ERROR("Failed to initialize line renderer!");
@@ -57,27 +57,10 @@ void App::onRender()
 
     glm::mat4 model = glm::mat4(1.0f);
     model           = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-    // model           = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
     m_shader->setMat4("model", model);
 
     m_lightManager->updateShaderUniforms(m_shader.get());
     m_model->draw(m_shader.get());
-
-    if (m_lineRenderer && drawLightLines) {
-        m_lineRenderer->beginFrame(projection * view);
-
-        glm::vec3 modelCenter = glm::vec3(0.0f, 0.0f, 0.0f);
-
-        // Use light manager for debug visualization
-        m_lightManager->renderDebugVisualization(m_lineRenderer.get(), modelCenter);
-
-        // // Draw coordinate axes
-        // m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(2.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        // m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        // m_lineRenderer->drawLine(modelCenter, modelCenter + glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-        m_lineRenderer->endFrame();
-    }
 
     {
         ImGui::Begin("Lighting");
@@ -116,26 +99,19 @@ void App::onRender()
 void App::setupLights()
 {
     // Add a sun light
-    // m_lightManager->addLight(Light::createSunLight(glm::vec3(-0.3f, -0.7f, -0.2f)));
+    m_lightManager->addLight(Light::createSunLight(glm::vec3(-0.3f, -0.7f, -0.2f)));
 
-    // // Key light (main illumination) - warm white
     m_lightManager->addLight(Light::createPointLight(glm::vec3(4.0f, 4.0f, 4.0f), glm::vec3(1.0f, 0.95f, 0.8f), 25.0f));
-
-    // Fill light (softer, cooler) - reduces harsh shadows
     m_lightManager->addLight(Light::createPointLight(glm::vec3(-3.0f, 2.0f, 3.0f), glm::vec3(0.8f, 0.9f, 1.0f), 12.0f));
-
-    // Rim/back light - adds definition to edges
     m_lightManager->addLight(Light::createPointLight(glm::vec3(0.0f, -1.0f, -4.0f), glm::vec3(1.0f, 1.0f, 1.0f), 8.0f));
 
-    // m_lightManager->addLight(Light::createSpotLight(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), 50.0f));
+    // m_lightManager->addLight(Light::createSpotLight(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 }
 
-// In app.cpp - Updated processInput method
 void App::processInput(float deltaTime)
 {
     if (!m_inputManager || !m_camera) return;
 
-    // FIX: Don't process camera input when ImGui wants keyboard/mouse input
     ImGuiIO& io = ImGui::GetIO();
     if (io.WantCaptureKeyboard || io.WantCaptureMouse) {
         return;

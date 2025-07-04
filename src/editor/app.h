@@ -42,10 +42,4 @@ class App : public IApp
     void setupLights();
 };
 
-// int main()
-// {
-//     auto app = std::make_unique<App>();
-//     app->run();
-// }
-
 #endif // EDITOR_APP_H_
