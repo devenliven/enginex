@@ -18,6 +18,7 @@ class Model
 {
   public:
     Model(const std::string& path, bool gamma = false);
+    ~Model();
 
     void draw(Shader* shader);
 

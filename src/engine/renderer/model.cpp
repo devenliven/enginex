@@ -13,6 +13,12 @@ Model::Model(const std::string& path, bool gamma)
     loadModel(path);
 }
 
+Model::~Model()
+{
+    for (auto& textureId : m_texturesLoaded) {
+        glDeleteTextures(1, &textureId.id);
+    }
+}
 void Model::draw(Shader* shader)
 {
     for (uint32_t i = 0; i < m_meshes.size(); i++) {
@@ -32,6 +38,8 @@ void Model::loadModel(const std::string& path)
     m_directory = path.substr(0, path.find_last_of('/'));
 
     processNode(scene->mRootNode, scene);
+
+    LOG_INFO("Finished loading model: {}", path);
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene)
@@ -98,14 +106,15 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     }
 
     aiMaterial* aiMat = scene->mMaterials[mesh->mMaterialIndex];
-    LOG_INFO("Processing mesh: {} with material: {}", mesh->mName.C_Str(), aiMat->GetName().C_Str());
+    // LOG_INFO("Processing mesh: {} with material: {}", mesh->mName.C_Str(), aiMat->GetName().C_Str());
 
     Material mat = convertAiMaterialToPBR(aiMat);
     loadMaterialTextures(aiMat, mat, textures);
 
-    LOG_INFO("Mesh {} final material: A({:.2f},{:.2f},{:.2f}) M:{:.2f} R:{:.2f} Textures: A:{} M:{} R:{} N:{}", mesh->mName.C_Str(), mat.albedo.r, mat.albedo.g, mat.albedo.b, mat.metallic, mat.roughness,
-             mat.hasAlbedoTexture, mat.hasMetallicTexture, mat.hasRoughnessTexture, mat.hasNormalTexture);
+    // LOG_INFO("Mesh {} final material: A({:.2f},{:.2f},{:.2f}) M:{:.2f} R:{:.2f} Textures: A:{} M:{} R:{} N:{}", mesh->mName.C_Str(), mat.albedo.r, mat.albedo.g, mat.albedo.b, mat.metallic, mat.roughness,
+    // mat.hasAlbedoTexture, mat.hasMetallicTexture, mat.hasRoughnessTexture, mat.hasNormalTexture);
 
+    LOG_INFO("Loaded mesh {}.", mesh->mName.C_Str());
     return Mesh(vertices, indices, textures, mat);
 }
 
@@ -171,7 +180,7 @@ Material Model::convertAiMaterialToPBR(aiMaterial* aiMat)
         LOG_INFO("AO is too low, setting to 1.0f");
     }
 
-    LOG_INFO("Final material - Albedo: ({:.2f}, {:.2f}, {:.2f}), Metallic: {:.2f}, Roughness: {:.2f}", mat.albedo.r, mat.albedo.g, mat.albedo.b, mat.metallic, mat.roughness);
+    // LOG_INFO("Final material - Albedo: ({:.2f}, {:.2f}, {:.2f}), Metallic: {:.2f}, Roughness: {:.2f}", mat.albedo.r, mat.albedo.g, mat.albedo.b, mat.metallic, mat.roughness);
 
     return mat;
 }
@@ -209,7 +218,8 @@ void Model::loadMaterialTextures(aiMaterial* aiMat, Material& mat, std::vector<T
         loadTextureType(aiMat, aiTextureType_HEIGHT, "texture_normal", textures, mat.hasNormalTexture);
     }
 
-    LOG_INFO("Texture summary - Albedo: {}, Metallic: {}, Roughness: {}, Normal: {}, LegacySpec: {}", mat.hasAlbedoTexture, mat.hasMetallicTexture, mat.hasRoughnessTexture, mat.hasNormalTexture, mat.hasLegacySpecular);
+    // LOG_INFO("Texture summary - Albedo: {}, Metallic: {}, Roughness: {}, Normal: {}, LegacySpec: {}", mat.hasAlbedoTexture, mat.hasMetallicTexture, mat.hasRoughnessTexture, mat.hasNormalTexture,
+    // mat.hasLegacySpecular);
 }
 
 void Model::loadTextureType(aiMaterial* mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures, bool& hasTexture)

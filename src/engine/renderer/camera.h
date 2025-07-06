@@ -3,7 +3,6 @@
 
 #include "utilities/logger.h"
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -19,8 +18,9 @@ class Camera
     void processKeyboard(CAMERA_MOVEMENT direction, float deltaTime, float speedMultiplier = 1.0f);
     void processMouse(float xoffset, float yoffset, GLboolean constrainPitch = true);
 
-    float     getZoom() const { return m_zoom; }
-    glm::vec3 getPosition() const { return m_position; }
+    float           getZoom() const { return m_zoom; }
+    const glm::vec3 getPosition() const { return m_position; }
+    const float     getMovementSpeed() const { return m_movementSpeed; }
 
   private:
     void updateCamera();

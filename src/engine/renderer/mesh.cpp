@@ -14,6 +14,13 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vec
     setupMesh();
 }
 
+Mesh::~Mesh()
+{
+    // glDeleteVertexArrays(1, &m_vao);
+    // glDeleteBuffers(1, &m_vbo);
+    // glDeleteBuffers(1, &m_ebo);
+}
+
 void Mesh::draw(Shader* shader)
 {
     shader->setVec3("material.albedo", m_material.albedo);

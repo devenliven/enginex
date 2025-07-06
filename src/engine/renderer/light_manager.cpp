@@ -39,16 +39,23 @@ void LightManager::updateShaderUniforms(Shader* shader) const
 {
     if (!shader) return;
 
-    shader->setInt("numLights", static_cast<int>(m_lights.size()));
+    int activeLightCount = 0;
+    for (const auto& light : m_lights) {
+        if (light && light->isEnabled()) {
+            activeLightCount++;
+        }
+    }
 
-    for (size_t i = 0; i < m_lights.size() && i < MAX_LIGHTS; ++i) {
+    shader->setInt("numLights", activeLightCount);
+
+    int activeIndex = 0;
+    for (size_t i = 0; i < m_lights.size() && activeIndex < MAX_LIGHTS; ++i) {
         const Light* light = m_lights[i].get();
         if (!light || !light->isEnabled()) continue;
 
         std::string uniformBase = "lights[" + std::to_string(i) + "]";
 
         shader->setInt(uniformBase + ".type", static_cast<int>(light->getType()));
-
         shader->setVec3(uniformBase + ".color", light->getColor());
         shader->setFloat(uniformBase + ".intensity", light->getIntensity());
 
@@ -62,6 +69,8 @@ void LightManager::updateShaderUniforms(Shader* shader) const
                 shader->setFloat(uniformBase + ".outerCutoff", light->getOuterCutoff());
                 break;
         }
+
+        activeIndex++;
     }
 }
 

@@ -3,7 +3,6 @@
 
 #include "utilities/logger.h"
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -54,7 +53,7 @@ class Mesh
 {
   public:
     Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures, Material material);
-    ~Mesh() {}
+    ~Mesh();
 
     void            draw(Shader* shader);
     const Material& getMaterial() const { return m_material; }

@@ -7,9 +7,6 @@
 #include "utilities/logger.h"
 #include "utilities/timer.h"
 
-#include <glad/glad.h>
-#include <backends/imgui_impl_opengl3.h>
-
 class App;
 
 Engine::~Engine()

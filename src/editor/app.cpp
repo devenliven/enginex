@@ -4,14 +4,6 @@
 #include "utilities/file.h"
 #include "engine/core/input/input_manager.h"
 
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <imgui.h>
-#include <backends/imgui_impl_opengl3.h>
-#include <backends/imgui_impl_win32.h>
-
 void App::initShaders() {}
 
 void App::onInit()
@@ -49,7 +41,7 @@ void App::onRender()
 
     m_shader->use();
 
-    glm::mat4 projection = glm::perspective(glm::radians(m_camera->getZoom()), (float)1280 / (float)720, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(m_camera->getZoom()), DEFAULT_ASPECT_RATIO, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE);
     glm::mat4 view       = m_camera->getViewMatrix();
     m_shader->setMat4("projection", projection);
     m_shader->setMat4("view", view);
@@ -117,25 +109,26 @@ void App::processInput(float deltaTime)
         return;
     }
 
-    float speedMultiplier = m_inputManager->isKeyPressed(KeyCode::Shift) ? 3.0f : 1.0f;
+    const float baseSpeed       = m_camera->getMovementSpeed();
+    const float speedMultiplier = m_inputManager->isKeyPressed(KeyCode::Shift) ? DEFAULT_CAMERA_SPEED_MULTIPLIER : 1.0f;
+    const float moveSpeed       = baseSpeed * speedMultiplier;
 
-    if (m_inputManager->isKeyPressed(KeyCode::W)) {
-        m_camera->processKeyboard(FORWARD, deltaTime, speedMultiplier);
-    }
+    struct MovementInput {
+        KeyCode         key;
+        CAMERA_MOVEMENT direction;
+    };
 
-    if (m_inputManager->isKeyPressed(KeyCode::S)) {
-        m_camera->processKeyboard(BACKWARD, deltaTime, speedMultiplier);
-    }
+    const std::array<MovementInput, 4> movements = {{{KeyCode::W, FORWARD}, {KeyCode::S, BACKWARD}, {KeyCode::A, LEFT}, {KeyCode::D, RIGHT}}};
 
-    if (m_inputManager->isKeyPressed(KeyCode::A)) {
-        m_camera->processKeyboard(LEFT, deltaTime, speedMultiplier);
-    }
-
-    if (m_inputManager->isKeyPressed(KeyCode::D)) {
-        m_camera->processKeyboard(RIGHT, deltaTime, speedMultiplier);
+    for (const auto& movement : movements) {
+        if (m_inputManager->isKeyPressed(movement.key)) {
+            m_camera->processKeyboard(movement.direction, deltaTime, speedMultiplier);
+        }
     }
 
     RawMouseInput mouseDelta = m_inputManager->getMouseDelta();
-    m_camera->processMouse(mouseDelta.deltaX, mouseDelta.deltaY);
+    if (mouseDelta.deltaX != 0.0f || mouseDelta.deltaY != 0.0f) {
+        m_camera->processMouse(mouseDelta.deltaX, mouseDelta.deltaY);
+    }
     m_inputManager->resetMouseDelta();
 }

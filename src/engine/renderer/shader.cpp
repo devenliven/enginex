@@ -102,3 +102,20 @@ bool Shader::validate(uint32_t shader, std::string errorType, const std::string&
 
     return true;
 }
+
+int Shader::getUniformLocation(const std::string& name) const
+{
+    auto it = m_uniformLocationCache.find(name);
+    if (it != m_uniformLocationCache.end()) {
+        return it->second;
+    }
+
+    int location                 = glGetUniformLocation(m_program, name.c_str());
+    m_uniformLocationCache[name] = location;
+
+    if (location == -1) {
+        LOG_WARN("Uniform '{}' not found in shader", name);
+    }
+
+    return location;
+}

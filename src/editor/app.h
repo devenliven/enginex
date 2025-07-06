@@ -35,8 +35,13 @@ class App : public IApp
     std::unique_ptr<LightManager> m_lightManager = nullptr;
 
     InputManager* m_inputManager = nullptr;
+    bool          drawLightLines = false;
 
-    bool drawLightLines = false;
+    static constexpr float DEFAULT_CAMERA_SPEED_MULTIPLIER = 3.0f;
+    static constexpr float DEFAULT_ASPECT_RATIO            = 1280.0f / 720.0f;
+    static constexpr float DEFAULT_FOV                     = 45.0f;
+    static constexpr float DEFAULT_NEAR_PLANE              = 0.1f;
+    static constexpr float DEFAULT_FAR_PLANE               = 100.0f;
 
     void processInput(float deltaTime);
     void setupLights();
