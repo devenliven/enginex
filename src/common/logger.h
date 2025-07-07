@@ -2,11 +2,11 @@
 #define UTILITIES_LOGGER_H_
 
 #include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h> // Or other sinks as needed
+#include <spdlog/sinks/stdout_color_sinks.h
 #include <spdlog/sinks/basic_file_sink.h>
-#include <memory>  // For std::shared_ptr
-#include <string>  // For std::string
-#include <utility> // For std::forward
+#include <memory>
+#include <string>
+#include <utility>
 #include <iostream>
 
 #define LOG_TRACE(fmt, ...) Logger::getInstance().trace(fmt, ##__VA_ARGS__)

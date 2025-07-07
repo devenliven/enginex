@@ -1,6 +1,10 @@
 #include "pch.h"
 
-#include "camera.h"
+#include "engine/renderer/camera.h"
+#include "common/logger.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 {
@@ -44,7 +48,7 @@ void Camera::processKeyboard(CAMERA_MOVEMENT direction, float deltaTime, float s
     }
 }
 
-void Camera::processMouse(float xoffset, float yoffset, GLboolean constrainPitch)
+void Camera::processMouse(float xoffset, float yoffset, bool constrainPitch)
 {
     xoffset *= m_mouseSensitivity;
     yoffset *= m_mouseSensitivity;

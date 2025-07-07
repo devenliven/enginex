@@ -1,10 +1,8 @@
 #ifndef EDITOR_APP_H_
 #define EDITOR_APP_H_
 
-#include "common/logger.h"
-#include "engine/core/window.h"
+#include "common/forward_dec.h"
 #include "editor/app_interface.h"
-#include <memory>
 
 class InputManager;
 class Scene;

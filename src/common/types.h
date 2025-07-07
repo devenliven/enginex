@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <glm/glm.hpp>
 
-// Common type aliases
 using uint8  = std::uint8_t;
 using uint16 = std::uint16_t;
 using uint32 = std::uint32_t;
@@ -18,7 +17,6 @@ using int64 = std::int64_t;
 using f32 = float;
 using f64 = double;
 
-// Common math types
 using Vec2 = glm::vec2;
 using Vec3 = glm::vec3;
 using Vec4 = glm::vec4;

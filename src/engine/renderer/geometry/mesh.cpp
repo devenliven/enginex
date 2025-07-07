@@ -16,9 +16,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vec
 
 Mesh::~Mesh()
 {
-    // glDeleteVertexArrays(1, &m_vao);
-    // glDeleteBuffers(1, &m_vbo);
-    // glDeleteBuffers(1, &m_ebo);
+    //
 }
 
 void Mesh::draw(Shader* shader)
@@ -36,7 +34,6 @@ void Mesh::draw(Shader* shader)
     shader->setBool("material.hasNormalTexture", m_material.hasNormalTexture);
     shader->setBool("material.hasLegacySpecular", m_material.hasLegacySpecular);
 
-    // Bind textures
     for (uint32_t i = 0; i < m_textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
         glUniform1i(glGetUniformLocation(shader->getProgram(), (m_textures[i].type + "1").c_str()), i);

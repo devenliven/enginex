@@ -5,8 +5,12 @@
 #include "engine/renderer/renderer.h"
 #include "engine/renderer/resources/resource_manager.h"
 #include "engine/core/input/input_manager.h"
-#include "engine/renderer/camera.h"
-#include "engine/renderer/lighting/light_manager.h"
+
+#include "common/logger.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <imgui.h>
 
 App::App()  = default;
 App::~App() = default;

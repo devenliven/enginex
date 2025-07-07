@@ -3,6 +3,7 @@
 #include "common/logger.h"
 #include "editor/application.h"
 #include "bootstrap.h"
+#include "engine/core/engine.h"
 
 int main()
 {

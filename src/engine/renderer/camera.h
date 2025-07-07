@@ -1,10 +1,7 @@
 #ifndef ENGINE_RENDERER_CAMERA_H_
 #define ENGINE_RENDERER_CAMERA_H_
 
-#include "common/logger.h"
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "common/forward_dec.h"
 
 enum CAMERA_MOVEMENT { FORWARD, BACKWARD, LEFT, RIGHT };
 
@@ -16,7 +13,7 @@ class Camera
     glm::mat4 getViewMatrix() const { return glm::lookAt(m_position, m_position + m_front, m_up); }
 
     void processKeyboard(CAMERA_MOVEMENT direction, float deltaTime, float speedMultiplier = 1.0f);
-    void processMouse(float xoffset, float yoffset, GLboolean constrainPitch = true);
+    void processMouse(float xoffset, float yoffset, bool constrainPitch = true);
 
     float           getZoom() const { return m_zoom; }
     const glm::vec3 getPosition() const { return m_position; }

@@ -6,6 +6,10 @@
 #include "engine/core/input/input_manager.h"
 #include "engine/renderer/resources/resource_manager.h"
 
+#include <imgui.h>
+#include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_win32.h>
+
 #include "common/logger.h"
 #include "common/timer.h"
 

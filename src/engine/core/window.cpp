@@ -5,10 +5,9 @@
 #include "common/logger.h"
 #include "common/stb_image.h"
 
+#include <glad/glad.h>
 #include <imgui.h>
 #include <backends/imgui_impl_opengl3.h>
-
-#include <glad/glad.h>
 #include <hidusage.h>
 
 Window::~Window()
@@ -47,7 +46,7 @@ bool Window::create(const WindowData& data)
     wc.hIconSm           = LoadIcon(nullptr, IDI_APPLICATION);
 
     if (!RegisterClassEx(&wc)) {
-        spdlog::error("Failed to register window class. Error: {}", GetLastError());
+        LOG_ERROR("Failed to register window class. Error: {}", GetLastError());
         return false;
     }
 
