@@ -2,8 +2,8 @@
 
 #include "shader.h"
 
-#include "utilities/file.h"
-#include "utilities/logger.h"
+#include "common/file.h"
+#include "common/logger.h"
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 {

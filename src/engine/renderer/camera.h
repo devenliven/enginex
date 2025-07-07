@@ -1,7 +1,7 @@
 #ifndef ENGINE_RENDERER_CAMERA_H_
 #define ENGINE_RENDERER_CAMERA_H_
 
-#include "utilities/logger.h"
+#include "common/logger.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

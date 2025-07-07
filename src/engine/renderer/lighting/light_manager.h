@@ -1,8 +1,8 @@
 #ifndef ENGINE_RENDERER_LIGHT_MANAGER_H_
 #define ENGINE_RENDERER_LIGHT_MANAGER_H_
 
-#include "engine/renderer/light.h"
-#include "engine/renderer/shader.h"
+#include "engine/renderer/lighting/light.h"
+#include "engine/renderer/shaders/shader.h"
 #include "editor/tools/line_renderer.h"
 
 #include <vector>

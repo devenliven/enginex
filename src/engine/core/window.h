@@ -1,12 +1,12 @@
 #ifndef WINDOW_H_
 #define WINDOW_H_
 
+#include "engine/core/platform/windows/os.h"
+
 #include <windows.h>
 #include <string>
 #include <functional>
 #include <backends/imgui_impl_win32.h>
-
-#include "engine/core/win32/os.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

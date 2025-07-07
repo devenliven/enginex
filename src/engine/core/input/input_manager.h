@@ -1,7 +1,7 @@
 #ifndef INPUT_INPUT_MANAGER_H_
 #define INPUT_INPUT_MANAGER_H_
 
-#include "engine/core/win32/os.h"
+#include "engine/core/platform/windows/os.h"
 
 #include <unordered_map>
 #include <vector>
@@ -50,9 +50,6 @@ class InputManager
     void          onMouseInput(const RawMouseInput& input);
     RawMouseInput getMouseDelta() const;
     void          resetMouseDelta();
-
-    // void setCursorVisible(bool visible);
-    // void setCursorLocked(bool locked);
 
   private:
     std::unordered_map<KeyCode, InputState>  m_keyStates;

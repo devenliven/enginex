@@ -8,7 +8,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "mesh.h"
+#include "engine/renderer/geometry/mesh.h"
 
 class Shader;
 class TextureResource;
@@ -19,22 +19,20 @@ class Model
 {
   public:
     Model(const std::string& path, bool gamma = false);
-    ~Model();
 
     void              draw(Shader* shader);
     std::vector<Mesh> getMeshes() const { return m_meshes; }
 
   private:
-    void     loadModel(const std::string& path);
-    void     processNode(aiNode* node, const aiScene* scene);
-    Mesh     processMesh(aiMesh* mesh, const aiScene* scene);
-    void     loadMaterialTextures(aiMaterial* aiMat, Material& mat, std::vector<Texture>& textures);
-    void     loadTextureType(aiMaterial* mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures, bool& hasTexture);
-    uint32_t textureFromFile(const std::string& path, const std::string& directory);
+    void loadModel(const std::string& path);
+    void processNode(aiNode* node, const aiScene* scene);
+    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+    void loadMaterialTextures(aiMaterial* aiMat, Material& mat, std::vector<Texture>& textures);
+    void loadTextureType(aiMaterial* mat, aiTextureType type, const std::string& typeName, std::vector<Texture>& textures, bool& hasTexture);
+    // uint32_t textureFromFile(const std::string& path, const std::string& directory);
     Material convertAiMaterialToPBR(aiMaterial* atMat);
 
     std::vector<std::shared_ptr<TextureResource>> m_textureResources;
-    std::vector<Texture>                          m_texturesLoaded;
     std::vector<Mesh>                             m_meshes;
     bool                                          m_gammaCorrection;
     std::string                                   m_directory;

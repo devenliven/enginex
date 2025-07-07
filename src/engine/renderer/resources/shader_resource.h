@@ -2,7 +2,7 @@
 #define ENGINE_RENDERER_SHADER_RESOURCE_H_
 
 #include "engine/core/resource.h"
-#include "engine/renderer/shader.h"
+#include "engine/renderer/shaders/shader.h"
 #include <memory>
 
 class ShaderResource : public IResource

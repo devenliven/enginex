@@ -1,11 +1,11 @@
 #ifndef EDITOR_APP_H_
 #define EDITOR_APP_H_
 
-#include "utilities/logger.h"
-#include "engine/renderer/shader.h"
-#include "engine/renderer/model.h"
+#include "common/logger.h"
+#include "engine/renderer/shaders/shader.h"
+#include "engine/renderer/geometry/model.h"
 #include "engine/renderer/camera.h"
-#include "engine/renderer/light_manager.h"
+#include "engine/renderer/lighting/light_manager.h"
 #include "engine/core/window.h"
 #include "editor/app_interface.h"
 #include "editor/tools/line_renderer.h"
@@ -25,7 +25,6 @@ class App : public IApp
     void onInit();
     void onUpdate(float deltaTime);
     void onRender();
-    void initShaders();
 
     void setInputManager(InputManager* inputManager) { m_inputManager = inputManager; }
 
@@ -37,7 +36,6 @@ class App : public IApp
     std::unique_ptr<LightManager>   m_lightManager = nullptr;
 
     InputManager* m_inputManager = nullptr;
-    bool          drawLightLines = false;
 
     static constexpr float DEFAULT_CAMERA_SPEED_MULTIPLIER = 3.0f;
     static constexpr float DEFAULT_ASPECT_RATIO            = 1280.0f / 720.0f;

@@ -2,12 +2,12 @@
 
 #include "engine/core/engine.h"
 #include "engine/core/window.h"
-#include "engine/core/win32/os.h"
+#include "engine/core/platform/windows/os.h"
 #include "engine/core/input/input_manager.h"
-#include "engine/renderer/resource_manager.h"
+#include "engine/renderer/resources/resource_manager.h"
 
-#include "utilities/logger.h"
-#include "utilities/timer.h"
+#include "common/logger.h"
+#include "common/timer.h"
 
 class App;
 

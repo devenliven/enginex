@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "utilities/logger.h"
-#include "editor/app.h"
-#include "editor/bootstrap.h"
+#include "common/logger.h"
+#include "editor/application.h"
+#include "bootstrap.h"
 
 int main()
 {

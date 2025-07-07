@@ -2,7 +2,7 @@
 
 #include "mesh.h"
 
-#include "engine/renderer/shader.h"
+#include "engine/renderer/shaders/shader.h"
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures, Material material)
 {

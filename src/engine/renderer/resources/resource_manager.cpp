@@ -1,10 +1,11 @@
 #include "pch.h"
 
-#include "engine/renderer/resource_manager.h"
-#include "engine/renderer/texture_resource.h"
-#include "engine/renderer/shader_resource.h"
-#include "engine/renderer/model_resource.h"
-#include "utilities/logger.h"
+#include "engine/renderer/resources/resource_manager.h"
+#include "engine/renderer/resources/texture_resource.h"
+#include "engine/renderer/resources/shader_resource.h"
+#include "engine/renderer/resources/model_resource.h"
+
+#include "common/logger.h"
 
 template <typename T> std::shared_ptr<T> ResourceCache<T>::get(const std::string& path, ResourceCreator creator)
 {

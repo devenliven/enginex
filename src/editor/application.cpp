@@ -1,13 +1,11 @@
 #include "pch.h"
 
-#include "editor/app.h"
-#include "utilities/file.h"
+#include "editor/application.h"
+#include "common/file.h"
 #include "engine/core/input/input_manager.h"
-#include "engine/renderer/resource_manager.h"
-#include "engine/renderer/model_resource.h"
-#include "engine/renderer/shader_resource.h"
-
-void App::initShaders() {}
+#include "engine/renderer/resources/resource_manager.h"
+#include "engine/renderer/resources/model_resource.h"
+#include "engine/renderer/resources/shader_resource.h"
 
 void App::onInit()
 {
@@ -19,7 +17,7 @@ void App::onInit()
         return;
     }
 
-    m_model = GET_MODEL("assets/models/chair/modern_arm_chair_01_1k.gltf");
+    m_model = GET_MODEL("assets/models/korean_fire_extinguisher_01_4k/korean_fire_extinguisher_01_4k.gltf");
     if (!m_model) {
         LOG_ERROR("App: Failed to load model!");
     }

@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "engine/renderer/shader_resource.h"
-#include "utilities/logger.h"
+#include "engine/renderer/resources/shader_resource.h"
+#include "common/logger.h"
 
 bool ShaderResource::load(const std::string& path)
 {

@@ -1,5 +1,6 @@
 #include "pch.h"
-#include "editor/bootstrap.h"
+
+#include "bootstrap.h"
 #include "engine/core/input/input_manager.h"
 
 bool Bootstrap::init(std::shared_ptr<IApp> app)

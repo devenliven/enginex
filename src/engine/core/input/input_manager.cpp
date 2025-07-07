@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "engine/core/input/input_manager.h"
-#include "utilities/logger.h"
+#include "common/logger.h"
 
 void InputManager::update()
 {

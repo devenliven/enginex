@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "engine/renderer/light_manager.h"
-#include "utilities/logger.h"
+#include "engine/renderer/lighting/light_manager.h"
+#include "common/logger.h"
 
 void LightManager::addLight(std::unique_ptr<Light> light)
 {

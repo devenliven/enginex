@@ -1,7 +1,7 @@
 #include "pch.h"
 
-#include "engine/renderer/model_resource.h"
-#include "utilities/logger.h"
+#include "engine/renderer/resources/model_resource.h"
+#include "common/logger.h"
 
 bool ModelResource::load(const std::string& path)
 {

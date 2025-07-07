@@ -1,13 +1,13 @@
 #include "pch.h"
 
-#include "utilities/logger.h"
-#include "utilities/stb_image.h"
+#include "common/logger.h"
+#include "common/stb_image.h"
 
-#include "engine/renderer/model.h"
-#include "engine/renderer/shader.h"
-#include "engine/renderer/mesh.h"
-#include "engine/renderer/resource_manager.h"
-#include "engine/renderer/texture_resource.h"
+#include "engine/renderer/geometry/model.h"
+#include "engine/renderer/geometry/mesh.h"
+#include "engine/renderer/shaders/shader.h"
+#include "engine/renderer/resources/resource_manager.h"
+#include "engine/renderer/resources/texture_resource.h"
 
 Model::Model(const std::string& path, bool gamma)
 {
@@ -15,12 +15,6 @@ Model::Model(const std::string& path, bool gamma)
     loadModel(path);
 }
 
-Model::~Model()
-{
-    for (auto& textureId : m_texturesLoaded) {
-        glDeleteTextures(1, &textureId.id);
-    }
-}
 void Model::draw(Shader* shader)
 {
     for (uint32_t i = 0; i < m_meshes.size(); i++) {
@@ -230,62 +224,39 @@ void Model::loadTextureType(aiMaterial* mat, aiTextureType type, const std::stri
         aiString str;
         mat->GetTexture(type, i, &str);
 
-        bool skip = false;
-        for (uint32_t j = 0; j < m_texturesLoaded.size(); j++) {
-            if (std::strcmp(m_texturesLoaded[j].path.data(), str.C_Str()) == 0) {
-                textures.push_back(m_texturesLoaded[j]);
-                skip       = true;
+        std::string fullPath = m_directory + '/' + str.C_Str();
+
+        // Check if we already loaded this texture
+        bool found = false;
+        for (const auto& texRes : m_textureResources) {
+            if (texRes && texRes->getPath() == fullPath) {
+                Texture texture;
+                texture.id   = texRes->getTextureId();
+                texture.type = typeName;
+                texture.path = str.C_Str();
+                textures.push_back(texture);
                 hasTexture = true;
+                found      = true;
                 break;
             }
         }
 
-        if (!skip) {
-            Texture texture;
-            texture.id   = textureFromFile(str.C_Str(), m_directory);
-            texture.type = typeName;
-            texture.path = str.C_Str();
+        if (!found) {
+            auto textureResource = RESOURCE_MANAGER.getTexture(fullPath);
+            if (textureResource && textureResource->isLoaded()) {
+                m_textureResources.push_back(textureResource);
 
-            if (texture.id != 0) {
+                Texture texture;
+                texture.id   = textureResource->getTextureId();
+                texture.type = typeName;
+                texture.path = str.C_Str();
                 textures.push_back(texture);
-                m_texturesLoaded.push_back(texture);
                 hasTexture = true;
-                LOG_INFO("Added texture: {} (ID: {})", texture.path, texture.id);
+
+                LOG_INFO("Loaded texture via ResourceManager: {}", fullPath);
             } else {
-                LOG_WARN("Failed to load texture: {}", str.C_Str());
+                LOG_WARN("Failed to load texture: {}", fullPath);
             }
         }
     }
-}
-
-uint32_t Model::textureFromFile(const std::string& path, const std::string& directory)
-{
-    std::string fullPath = directory + '/' + path;
-
-    for (const auto& textureRes : m_textureResources) {
-        if (textureRes && textureRes->getPath() == fullPath) {
-            return textureRes->getTextureId();
-        }
-    }
-
-    auto textureResource = RESOURCE_MANAGER.getTexture(fullPath);
-    if (textureResource && textureResource->isLoaded()) {
-        m_textureResources.push_back(textureResource);
-        LOG_INFO("Loaded texture via ResourceManager: {}", fullPath);
-        return textureResource->getTextureId();
-    }
-
-    LOG_ERROR("Failed to load texture through ResourceManager: {}", fullPath);
-
-    uint32_t defaultTexture;
-    glGenTextures(1, &defaultTexture);
-    glBindTexture(GL_TEXTURE_2D, defaultTexture);
-    unsigned char defaultPixel[4] = {255, 255, 255, 255};
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, defaultPixel);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    return defaultTexture;
 }

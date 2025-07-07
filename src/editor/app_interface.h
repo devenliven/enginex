@@ -1,7 +1,7 @@
 #ifndef ENGINE_CORE_APP_INTERFACE_H_
 #define ENGINE_CORE_APP_INTERFACE_H_
 
-#include "engine/core/win32/os.h"
+#include "engine/core/platform/windows/os.h"
 
 class IApp
 {

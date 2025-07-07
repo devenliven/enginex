@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "engine/renderer/light.h"
+#include "engine/renderer/lighting/light.h"
 
 Light::Light(Type type, const glm::vec3& position, const glm::vec3& color, float intensity)
     : m_type(type)

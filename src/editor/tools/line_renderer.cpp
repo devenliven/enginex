@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "line_renderer.h"
-#include "utilities/logger.h"
+#include "common/logger.h"
 
 const char* LineRenderer::s_vertexShaderSource = R"(
 #version 330 core

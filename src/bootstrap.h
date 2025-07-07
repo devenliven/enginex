@@ -1,7 +1,7 @@
 #ifndef EDITOR_BOOTSTRAP_H_
 #define EDITOR_BOOTSTRAP_H_
 
-#include "utilities/logger.h"
+#include "common/logger.h"
 #include "engine/core/engine.h"
 #include "editor/app_interface.h"
 

@@ -1,8 +1,8 @@
 #include "pch.h"
 
-#include "engine/renderer/texture_resource.h"
-#include "utilities/logger.h"
-#include "utilities/stb_image.h"
+#include "engine/renderer/resources/texture_resource.h"
+#include "common/logger.h"
+#include "common/stb_image.h"
 
 #include <filesystem>
 

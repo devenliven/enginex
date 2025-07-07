@@ -1,7 +1,7 @@
 #ifndef ENGINE_RENDERER_MESH_H_
 #define ENGINE_RENDERER_MESH_H_
 
-#include "utilities/logger.h"
+#include "common/logger.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -70,7 +70,6 @@ class Mesh
     std::vector<uint32_t> m_indices;
     std::vector<Texture>  m_textures;
     Material              m_material;
-    bool                  debugMessageSent = false;
 
     void setupMesh();
 };

@@ -1,9 +1,9 @@
 #include "pch.h"
 
 #include "engine/core/window.h"
-#include "engine/core/win32/os.h"
-#include "utilities/logger.h"
-#include "utilities/stb_image.h"
+#include "engine/core/platform/windows/os.h"
+#include "common/logger.h"
+#include "common/stb_image.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_opengl3.h>

@@ -2,6 +2,7 @@
 #define ENGINE_RENDERER_RESOURCE_MANAGER_H_
 
 #include "engine/core/resource.h"
+
 #include <unordered_map>
 #include <memory>
 #include <string>
