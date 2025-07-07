@@ -11,10 +11,9 @@ class ShaderResource : public IResource
     ShaderResource()           = default;
     ~ShaderResource() override = default;
 
-    bool   load(const std::string& path) override;
-    void   unload() override;
-    bool   isLoaded() const override { return m_shader != nullptr; }
-    size_t getMemoryUsage() const override { return sizeof(Shader); }
+    bool load(const std::string& path) override;
+    void unload() override;
+    bool isLoaded() const override { return m_shader != nullptr; }
 
     Shader* getShader() const { return m_shader.get(); }
     bool    loadFromPaths(const std::string& vertexPath, const std::string& fragmentPath);

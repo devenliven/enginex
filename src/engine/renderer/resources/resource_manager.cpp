@@ -158,8 +158,8 @@ ResourceManager::Stats ResourceManager::getStats() const
 void ResourceManager::logStats() const
 {
     auto stats = getStats();
-    LOG_INFO("ResourceManager: Current stats:");
-    LOG_INFO("  Textures: {}", stats.textureCount);
-    LOG_INFO("  Shaders: {}", stats.shaderCount);
-    LOG_INFO("  Models: {}", stats.modelCount);
+    LOG_INFO("ResourceManager:");
+    LOG_INFO("Textures: {}", stats.textureCount);
+    LOG_INFO("Shaders: {}", stats.shaderCount);
+    LOG_INFO("Models: {}", stats.modelCount);
 }

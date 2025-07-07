@@ -110,7 +110,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     // LOG_INFO("Mesh {} final material: A({:.2f},{:.2f},{:.2f}) M:{:.2f} R:{:.2f} Textures: A:{} M:{} R:{} N:{}", mesh->mName.C_Str(), mat.albedo.r, mat.albedo.g, mat.albedo.b, mat.metallic, mat.roughness,
     // mat.hasAlbedoTexture, mat.hasMetallicTexture, mat.hasRoughnessTexture, mat.hasNormalTexture);
 
-    LOG_INFO("Loaded mesh {}.", mesh->mName.C_Str());
+    // LOG_INFO("Loaded mesh {}.", mesh->mName.C_Str());
     return Mesh(vertices, indices, textures, mat);
 }
 
@@ -253,7 +253,7 @@ void Model::loadTextureType(aiMaterial* mat, aiTextureType type, const std::stri
                 textures.push_back(texture);
                 hasTexture = true;
 
-                LOG_INFO("Loaded texture via ResourceManager: {}", fullPath);
+                // LOG_INFO("Loaded texture via ResourceManager: {}", fullPath);
             } else {
                 LOG_WARN("Failed to load texture: {}", fullPath);
             }

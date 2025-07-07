@@ -10,10 +10,9 @@ class TextureResource : public IResource
     TextureResource() = default;
     ~TextureResource() override;
 
-    bool   load(const std::string& path) override;
-    void   unload() override;
-    bool   isLoaded() const override { return m_textureId != 0; }
-    size_t getMemoryUsage() const override;
+    bool load(const std::string& path) override;
+    void unload() override;
+    bool isLoaded() const override { return m_textureId != 0; }
 
     uint32_t getTextureId() const { return m_textureId; }
     int      getWidth() const { return m_width; }

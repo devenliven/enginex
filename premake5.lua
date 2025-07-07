@@ -56,8 +56,8 @@ solution "enginex"
         filter "configurations:Debug*"
             targetname "engine_d"
 
-        filter "action:vs*"
-            buildoptions { "/W4", "/Zc:unused-arguments" }
+        -- filter "action:vs*"
+        --     buildoptions { "/W4", "/Zc:unused-arguments" }
 
     group "3rdparty"
         project "glad"

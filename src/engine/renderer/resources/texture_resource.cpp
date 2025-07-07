@@ -25,7 +25,7 @@ bool TextureResource::load(const std::string& path)
         return false;
     }
 
-    LOG_INFO("Loading texture: {}", path);
+    // LOG_INFO("Loading texture: {}", path);
 
     unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 0);
     if (!data) {
@@ -33,7 +33,7 @@ bool TextureResource::load(const std::string& path)
         return false;
     }
 
-    LOG_INFO("Texture data loaded: {}x{}x{} channels", m_width, m_height, m_channels);
+    // LOG_INFO("Texture data loaded: {}x{}x{} channels", m_width, m_height, m_channels);
 
     glGenTextures(1, &m_textureId);
     glBindTexture(GL_TEXTURE_2D, m_textureId);
@@ -56,7 +56,7 @@ bool TextureResource::load(const std::string& path)
 
     stbi_image_free(data);
 
-    LOG_INFO("Successfully loaded texture: {} (ID: {}, {}x{}, {} channels)", path, m_textureId, m_width, m_height, m_channels);
+    // LOG_INFO("Successfully loaded texture: {} (ID: {}, {}x{}, {} channels)", path, m_textureId, m_width, m_height, m_channels);
     return true;
 }
 
@@ -65,15 +65,6 @@ void TextureResource::unload()
     if (m_textureId != 0) {
         glDeleteTextures(1, &m_textureId);
         m_textureId = 0;
-        LOG_DEBUG("Unloaded texture: {}", m_path);
+        // LOG_DEBUG("Unloaded texture: {}", m_path);
     }
-}
-
-size_t TextureResource::getMemoryUsage() const
-{
-    if (!isLoaded()) return 0;
-
-    // Improve this, it's not very accurate. 1.33f is number pulled from google. Roughly 1.33x base size
-    size_t baseSize = m_width * m_height * m_channels;
-    return static_cast<size_t>(baseSize * 1.33f);
 }

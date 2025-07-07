@@ -7,11 +7,10 @@
 class IResource
 {
   public:
-    virtual ~IResource()                         = default;
-    virtual bool   load(const std::string& path) = 0;
-    virtual void   unload()                      = 0;
-    virtual bool   isLoaded() const              = 0;
-    virtual size_t getMemoryUsage() const        = 0;
+    virtual ~IResource()                       = default;
+    virtual bool load(const std::string& path) = 0;
+    virtual void unload()                      = 0;
+    virtual bool isLoaded() const              = 0;
 
     const std::string& getPath() const { return m_path; }
 
