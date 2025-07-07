@@ -4,6 +4,8 @@
 #include "engine/core/window.h"
 #include "engine/core/win32/os.h"
 #include "engine/core/input/input_manager.h"
+#include "engine/renderer/resource_manager.h"
+
 #include "utilities/logger.h"
 #include "utilities/timer.h"
 
@@ -12,6 +14,9 @@ class App;
 Engine::~Engine()
 {
     cleanup();
+
+    RESOURCE_MANAGER.clearAll();
+    RESOURCE_MANAGER.logStats();
 }
 
 bool Engine::init(std::shared_ptr<IApp> app)

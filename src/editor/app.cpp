@@ -3,16 +3,30 @@
 #include "editor/app.h"
 #include "utilities/file.h"
 #include "engine/core/input/input_manager.h"
+#include "engine/renderer/resource_manager.h"
+#include "engine/renderer/model_resource.h"
+#include "engine/renderer/shader_resource.h"
 
 void App::initShaders() {}
 
 void App::onInit()
 {
     m_camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
-    m_shader = std::make_unique<Shader>("pbr.vs", "pbr.fs");
+
+    m_shader = GET_SHADER("pbr");
+    if (!m_shader) {
+        LOG_ERROR("App: Failed to load pbr shaders!");
+        return;
+    }
+
+    m_model = GET_MODEL("assets/models/chair/modern_arm_chair_01_1k.gltf");
+    if (!m_model) {
+        LOG_ERROR("App: Failed to load model!");
+    }
+
     // m_model  = std::make_unique<Model>("assets/models/chair/modern_arm_chair_01_1k.gltf");
     // m_model        = std::make_unique<Model>("assets/models/corrugated_iron_4k/corrugated_iron_4k.gltf");
-    m_model        = std::make_unique<Model>("assets/models/korean_fire_extinguisher_01_4k/korean_fire_extinguisher_01_4k.gltf");
+    // m_model        = std::make_unique<Model>("assets/models/korean_fire_extinguisher_01_4k/korean_fire_extinguisher_01_4k.gltf");
     m_lineRenderer = std::make_unique<LineRenderer>();
     if (!m_lineRenderer->initialize()) {
         LOG_ERROR("Failed to initialize line renderer!");
@@ -21,6 +35,8 @@ void App::onInit()
 
     m_lightManager = std::make_unique<LightManager>();
     setupLights();
+
+    RESOURCE_MANAGER.logStats();
 }
 
 void App::onUpdate(float deltaTime)
@@ -39,20 +55,29 @@ void App::onRender()
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_shader->use();
+    if (!m_shader || !m_shader->getShader()) {
+        LOG_ERROR("App:onRender() - No valid shaders available!");
+        return;
+    }
+
+    Shader* shader = m_shader->getShader();
+
+    shader->use();
 
     glm::mat4 projection = glm::perspective(glm::radians(m_camera->getZoom()), DEFAULT_ASPECT_RATIO, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE);
     glm::mat4 view       = m_camera->getViewMatrix();
-    m_shader->setMat4("projection", projection);
-    m_shader->setMat4("view", view);
-    m_shader->setVec3("viewPos", m_camera->getPosition());
+    shader->setMat4("projection", projection);
+    shader->setMat4("view", view);
+    shader->setVec3("viewPos", m_camera->getPosition());
 
     glm::mat4 model = glm::mat4(1.0f);
     model           = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-    m_shader->setMat4("model", model);
+    shader->setMat4("model", model);
 
-    m_lightManager->updateShaderUniforms(m_shader.get());
-    m_model->draw(m_shader.get());
+    m_lightManager->updateShaderUniforms(shader);
+
+    Model* chairModel = m_model->getModel();
+    chairModel->draw(shader);
 
     {
         ImGui::Begin("Lighting");
@@ -122,7 +147,7 @@ void App::processInput(float deltaTime)
 
     for (const auto& movement : movements) {
         if (m_inputManager->isKeyPressed(movement.key)) {
-            m_camera->processKeyboard(movement.direction, deltaTime, speedMultiplier);
+            m_camera->processKeyboard(movement.direction, deltaTime, moveSpeed);
         }
     }
 

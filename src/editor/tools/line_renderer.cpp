@@ -208,7 +208,7 @@ void LineRenderer::endFrame()
 
     glLineWidth(2.0f);
 
-    glDrawArrays(GL_LINES, 0, m_lines.size() * 2);
+    glDrawArrays(GL_LINES, 0, (GLsizei)m_lines.size() * 2);
 
     glLineWidth(1.0f);
 

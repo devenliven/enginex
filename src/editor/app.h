@@ -13,6 +13,8 @@
 #include <memory>
 
 class InputManager;
+class ShaderResource;
+class ModelResource;
 
 class App : public IApp
 {
@@ -28,11 +30,11 @@ class App : public IApp
     void setInputManager(InputManager* inputManager) { m_inputManager = inputManager; }
 
   private:
-    std::unique_ptr<Shader>       m_shader       = nullptr;
-    std::unique_ptr<Model>        m_model        = nullptr;
-    std::unique_ptr<Camera>       m_camera       = nullptr;
-    std::unique_ptr<LineRenderer> m_lineRenderer = nullptr;
-    std::unique_ptr<LightManager> m_lightManager = nullptr;
+    std::shared_ptr<ShaderResource> m_shader       = nullptr;
+    std::shared_ptr<ModelResource>  m_model        = nullptr;
+    std::unique_ptr<Camera>         m_camera       = nullptr;
+    std::unique_ptr<LineRenderer>   m_lineRenderer = nullptr;
+    std::unique_ptr<LightManager>   m_lightManager = nullptr;
 
     InputManager* m_inputManager = nullptr;
     bool          drawLightLines = false;

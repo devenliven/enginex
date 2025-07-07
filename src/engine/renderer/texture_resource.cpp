@@ -4,6 +4,8 @@
 #include "utilities/logger.h"
 #include "utilities/stb_image.h"
 
+#include <filesystem>
+
 TextureResource::~TextureResource()
 {
     unload();
@@ -18,11 +20,20 @@ bool TextureResource::load(const std::string& path)
 
     m_path = path;
 
-    unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 0);
-    if (!data) {
-        LOG_ERROR("Failed to load texture: {}", path);
+    if (!std::filesystem::exists(path)) {
+        LOG_ERROR("Texture file does not exist: {}", path);
         return false;
     }
+
+    LOG_INFO("Loading texture: {}", path);
+
+    unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 0);
+    if (!data) {
+        LOG_ERROR("stbi_load failed for texture: {} - {}", path, stbi_failure_reason());
+        return false;
+    }
+
+    LOG_INFO("Texture data loaded: {}x{}x{} channels", m_width, m_height, m_channels);
 
     glGenTextures(1, &m_textureId);
     glBindTexture(GL_TEXTURE_2D, m_textureId);
@@ -45,7 +56,7 @@ bool TextureResource::load(const std::string& path)
 
     stbi_image_free(data);
 
-    LOG_INFO("Loaded texture: {} ({}x{}, {} channels)", path, m_width, m_height, m_channels);
+    LOG_INFO("Successfully loaded texture: {} (ID: {}, {}x{}, {} channels)", path, m_textureId, m_width, m_height, m_channels);
     return true;
 }
 

@@ -55,8 +55,11 @@ class Mesh
     Mesh(std::vector<Vertex> vertices, std::vector<uint32_t> indices, std::vector<Texture> textures, Material material);
     ~Mesh();
 
-    void            draw(Shader* shader);
-    const Material& getMaterial() const { return m_material; }
+    void                  draw(Shader* shader);
+    const Material&       getMaterial() const { return m_material; }
+    std::vector<Vertex>   getVertices() const { return m_vertices; }
+    std::vector<uint32_t> getIndices() const { return m_indices; }
+    std::vector<Texture>  getTextures() const { return m_textures; }
 
   private:
     uint32_t m_vbo;
