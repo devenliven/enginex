@@ -29,6 +29,7 @@ class App : public IApp
 
     void processInput(float deltaTime);
     void renderUI();
+    void renderSidebar();
 };
 
 #endif // EDITOR_APP_H_

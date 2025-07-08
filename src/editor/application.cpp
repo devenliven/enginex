@@ -55,10 +55,11 @@ void App::onUpdate(float deltaTime)
 void App::onRender()
 {
     m_renderer->beginFrame();
-    m_renderer->renderScene(m_scene.get());
-    m_renderer->endFrame();
 
     renderUI();
+
+    m_renderer->renderSceneToViewport(m_scene.get());
+    m_renderer->endFrame();
 }
 
 void App::processInput(float deltaTime)
@@ -97,32 +98,95 @@ void App::processInput(float deltaTime)
 
 void App::renderUI()
 {
-    ImGui::Begin("Lighting");
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
+    ImGui::SetNextWindowViewport(viewport->ID);
 
-    LightManager* lightManager = m_scene->getLightManager();
-    for (int i = 0; i < lightManager->getLightCount(); i++) {
-        auto        light    = lightManager->getLight(i);
-        std::string typeName = light->getTypeName();
-        ImGui::Text("%s Light", typeName.c_str());
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
+    window_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
-        auto& position = light->getPosition();
-        float pos[3]   = {position.x, position.y, position.z};
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-        std::string label;
-        bool        changed = false;
+    ImGui::Begin("DockSpace", nullptr, window_flags);
+    ImGui::PopStyleVar(3);
 
-        label = std::format("X [{}]##X{}", typeName, i);
-        changed |= ImGui::SliderFloat(label.c_str(), &pos[0], -10.0f, 10.0f);
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
+        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+    }
 
-        label = std::format("Y [{}]##Y{}", typeName, i);
-        changed |= ImGui::SliderFloat(label.c_str(), &pos[1], -10.0f, 10.0f);
+    // Menu bar
+    if (ImGui::BeginMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Exit")) {
+                // Handle exit
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
 
-        label = std::format("Z [{}]##Z{}", typeName, i);
-        changed |= ImGui::SliderFloat(label.c_str(), &pos[2], -10.0f, 10.0f);
+    ImGui::End();
 
-        if (changed) {
-            LOG_INFO("Updated position: {}, {}, {}", pos[0], pos[1], pos[2]);
-            light->setPosition(glm::vec3(pos[0], pos[1], pos[2]));
+    renderSidebar();
+}
+
+void App::renderSidebar()
+{
+    ImGui::Begin("Sidebar");
+
+    if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::Text("Models: %zu", m_scene->getModels().size());
+        ImGui::Separator();
+    }
+
+    if (ImGui::CollapsingHeader("Lighting", ImGuiTreeNodeFlags_DefaultOpen)) {
+        LightManager* lightManager = m_scene->getLightManager();
+        for (int i = 0; i < lightManager->getLightCount(); i++) {
+            auto        light    = lightManager->getLight(i);
+            std::string typeName = light->getTypeName();
+
+            if (ImGui::TreeNode((typeName + " Light##" + std::to_string(i)).c_str())) {
+                auto& position = light->getPosition();
+                float pos[3]   = {position.x, position.y, position.z};
+
+                bool changed = false;
+                changed |= ImGui::SliderFloat("X", &pos[0], -10.0f, 10.0f);
+                changed |= ImGui::SliderFloat("Y", &pos[1], -10.0f, 10.0f);
+                changed |= ImGui::SliderFloat("Z", &pos[2], -10.0f, 10.0f);
+
+                if (changed) {
+                    light->setPosition(glm::vec3(pos[0], pos[1], pos[2]));
+                }
+
+                auto& color  = light->getColor();
+                float col[3] = {color.r, color.g, color.b};
+                if (ImGui::ColorEdit3("Color", col)) {
+                    light->setColor(glm::vec3(col[0], col[1], col[2]));
+                }
+
+                float intensity = light->getIntensity();
+                if (ImGui::SliderFloat("Intensity", &intensity, 0.0f, 50.0f)) {
+                    light->setIntensity(intensity);
+                }
+
+                ImGui::TreePop();
+            }
+        }
+    }
+
+    if (ImGui::CollapsingHeader("Camera")) {
+        Camera* camera = m_scene->getCamera();
+        if (camera) {
+            auto pos = camera->getPosition();
+            ImGui::Text("Position: (%.2f, %.2f, %.2f)", pos.x, pos.y, pos.z);
+            ImGui::Text("Speed: %.2f", camera->getMovementSpeed());
         }
     }
 

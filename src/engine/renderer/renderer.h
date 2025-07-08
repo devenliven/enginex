@@ -5,6 +5,8 @@
 
 #include <memory>
 
+struct ImVec2;
+
 class Scene;
 
 class Renderer
@@ -19,9 +21,16 @@ class Renderer
     void beginFrame();
     void renderScene(Scene* scene);
     void endFrame();
+    void renderSceneToViewport(Scene* scene);
+
+    ImVec2 getViewportSize() const;
+    float  getViewportAspectRatio() const;
 
   private:
     std::shared_ptr<ShaderResource> m_pbrShader;
+
+    int m_viewportWidth  = 1280;
+    int m_viewportHeight = 720;
 
     static constexpr float DEFAULT_ASPECT_RATIO = 1280.0f / 720.0f;
     static constexpr float DEFAULT_FOV          = 45.0f;

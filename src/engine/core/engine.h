@@ -31,8 +31,8 @@ class Engine
     std::shared_ptr<IApp>         m_app          = nullptr;
     std::unique_ptr<InputManager> m_inputManager = nullptr;
 
-    int m_windowWidth  = 1280;
-    int m_windowHeight = 720;
+    int m_windowWidth  = 1920;
+    int m_windowHeight = 1080;
 
     void handleWindowEvent(WindowEvent event, int param1, int param2, int param3);
 };

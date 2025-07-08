@@ -9,6 +9,8 @@
 #include "engine/renderer/lighting/light_manager.h"
 #include "common/logger.h"
 
+#include <imgui.h>
+
 bool Renderer::initialize()
 {
     setupShaders();
@@ -39,9 +41,11 @@ void Renderer::renderScene(Scene* scene)
     Shader* shader = m_pbrShader->getShader();
     shader->use();
 
-    Camera*   camera     = scene->getCamera();
-    glm::mat4 projection = glm::perspective(glm::radians(camera->getZoom()), DEFAULT_ASPECT_RATIO, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE);
-    glm::mat4 view       = camera->getViewMatrix();
+    Camera* camera = scene->getCamera();
+
+    float     aspectRatio = getViewportAspectRatio();
+    glm::mat4 projection  = glm::perspective(glm::radians(camera->getZoom()), aspectRatio, DEFAULT_NEAR_PLANE, DEFAULT_FAR_PLANE);
+    glm::mat4 view        = camera->getViewMatrix();
 
     shader->setMat4("projection", projection);
     shader->setMat4("view", view);
@@ -77,4 +81,39 @@ void Renderer::renderModel(const std::shared_ptr<ModelResource>& modelResource, 
 
     Model* model = modelResource->getModel();
     model->draw(shader);
+}
+
+void Renderer::renderSceneToViewport(Scene* scene)
+{
+    ImGui::Begin("Viewport");
+
+    ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+
+    if (viewportSize.x > 0 && viewportSize.y > 0) {
+        glViewport(0, 0, (int)viewportSize.x, (int)viewportSize.y);
+
+        m_viewportWidth  = (int)viewportSize.x;
+        m_viewportHeight = (int)viewportSize.y;
+
+        // Maybe change this to render to a framebuffer texture?
+        renderScene(scene);
+
+        ImGui::SetCursorPos(ImVec2(10, 30)); // Position overlay text
+        ImGui::Text("Viewport: %dx%d", m_viewportWidth, m_viewportHeight);
+    }
+
+    ImGui::End();
+}
+
+ImVec2 Renderer::getViewportSize() const
+{
+    return ImVec2((float)m_viewportWidth, (float)m_viewportHeight);
+}
+
+float Renderer::getViewportAspectRatio() const
+{
+    if (m_viewportHeight > 0) {
+        return (float)m_viewportWidth / (float)m_viewportHeight;
+    }
+    return DEFAULT_ASPECT_RATIO;
 }

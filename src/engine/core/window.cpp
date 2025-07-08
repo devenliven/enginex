@@ -95,9 +95,18 @@ bool Window::create(const WindowData& data)
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
 
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
     ImGui::StyleColorsDark();
 
-    ImGui_ImplWin32_InitForOpenGL(m_hwnd);
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        ImGuiStyle& style                 = ImGui::GetStyle();
+        style.WindowRounding              = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+        ImGui_ImplWin32_InitForOpenGL(m_hwnd);
     ImGui_ImplOpenGL3_Init();
 
     setUiMode(false);
