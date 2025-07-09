@@ -37,8 +37,16 @@ class Renderer
     static constexpr float DEFAULT_NEAR_PLANE   = 0.1f;
     static constexpr float DEFAULT_FAR_PLANE    = 100.0f;
 
+    uint32_t m_frameBuffer       = 0;
+    uint32_t m_colorTexture      = 0;
+    uint32_t m_depthTexture      = 0;
+    int      m_framebufferWidth  = 0;
+    int      m_framebufferHeight = 0;
+
     void setupShaders();
     void renderModel(const std::shared_ptr<class ModelResource>& model, const glm::mat4& modelMatrix, class Shader* shader);
+    void createFramebuffer(int width, int height);
+    void deleteFramebuffer();
 };
 
 #endif // ENGINE_RENDERER_RENDERER_H_

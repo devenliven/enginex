@@ -88,12 +88,10 @@ void Engine::run()
     glEnable(GL_DEPTH_TEST);
 
     Timer timer;
-
     m_app->onInit();
 
     while (m_window->isOpen()) {
         float deltaTime = timer.getDeltaTime();
-
         m_inputManager->update();
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -106,11 +104,12 @@ void Engine::run()
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        // Handle multi-viewport rendering (this fixes the assertion)
         ImGuiIO& io = ImGui::GetIO();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
+
+            wglMakeCurrent(m_window->getDeviceContext(), m_window->getOpenGLContext());
         }
 
         m_window->pollEvents();

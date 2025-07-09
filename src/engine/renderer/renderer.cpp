@@ -21,14 +21,15 @@ bool Renderer::initialize()
 
 void Renderer::shutdown()
 {
+    deleteFramebuffer();
     m_pbrShader.reset();
     LOG_INFO("Renderer: Renderer shutdown complete!");
 }
 
 void Renderer::beginFrame()
 {
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Renderer::renderScene(Scene* scene)
@@ -61,6 +62,7 @@ void Renderer::renderScene(Scene* scene)
 void Renderer::endFrame()
 {
     // Any post rendering cleanup
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Renderer::setupShaders()
@@ -90,19 +92,88 @@ void Renderer::renderSceneToViewport(Scene* scene)
     ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 
     if (viewportSize.x > 0 && viewportSize.y > 0) {
-        glViewport(0, 0, (int)viewportSize.x, (int)viewportSize.y);
+        int width  = (int)viewportSize.x;
+        int height = (int)viewportSize.y;
 
-        m_viewportWidth  = (int)viewportSize.x;
-        m_viewportHeight = (int)viewportSize.y;
+        // Create or resize framebuffer if needed
+        if (m_frameBuffer == 0 || m_framebufferWidth != width || m_framebufferHeight != height) {
+            createFramebuffer(width, height);
+        }
 
-        // Maybe change this to render to a framebuffer texture?
+        m_viewportWidth  = width;
+        m_viewportHeight = height;
+
+        // Render scene to framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
+        glViewport(0, 0, width, height);
+
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         renderScene(scene);
 
-        ImGui::SetCursorPos(ImVec2(10, 30)); // Position overlay text
+        // Bind back to default framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // Display the framebuffer texture in ImGui
+        ImGui::Image(ImTextureRef{m_colorTexture}, viewportSize, ImVec2(0, 1), ImVec2(1, 0));
+
+        ImGui::SetCursorPos(ImVec2(10, 30));
         ImGui::Text("Viewport: %dx%d", m_viewportWidth, m_viewportHeight);
     }
 
     ImGui::End();
+}
+
+void Renderer::createFramebuffer(int width, int height)
+{
+    if (m_frameBuffer != 0) {
+        deleteFramebuffer();
+    }
+
+    m_framebufferWidth  = width;
+    m_framebufferHeight = height;
+
+    glGenFramebuffers(1, &m_frameBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer);
+
+    // Color
+    glGenTextures(1, &m_colorTexture);
+    glBindTexture(GL_TEXTURE_2D, m_colorTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorTexture, 0);
+
+    // Depth
+    glGenTextures(1, &m_depthTexture);
+    glBindTexture(GL_TEXTURE_2D, m_depthTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthTexture, 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        LOG_ERROR("Framebuffer not complete!");
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::deleteFramebuffer()
+{
+    if (m_colorTexture) {
+        glDeleteTextures(1, &m_colorTexture);
+        m_colorTexture = 0;
+    }
+    if (m_depthTexture) {
+        glDeleteTextures(1, &m_depthTexture);
+        m_depthTexture = 0;
+    }
+    if (m_frameBuffer) {
+        glDeleteFramebuffers(1, &m_frameBuffer);
+        m_frameBuffer = 0;
+    }
 }
 
 ImVec2 Renderer::getViewportSize() const

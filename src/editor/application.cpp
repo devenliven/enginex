@@ -30,7 +30,8 @@ void App::onInit()
     }
 
     // Load the chair model
-    auto chairModel = GET_MODEL("assets/models/chair/modern_arm_chair_01_1k.gltf");
+    // auto chairModel = GET_MODEL("assets/models/chair/modern_arm_chair_01_1k.gltf");
+    auto chairModel = GET_MODEL("assets/models/korean_fire_extinguisher_01_4k/korean_fire_extinguisher_01_4k.gltf");
     if (chairModel) {
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
         m_scene->addModel(chairModel, transform);
@@ -103,10 +104,11 @@ void App::renderUI()
     ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::SetNextWindowViewport(viewport->ID);
 
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar;
     window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
     window_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+    window_flags |= ImGuiWindowFlags_NoBackground;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
