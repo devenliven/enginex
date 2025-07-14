@@ -48,6 +48,7 @@ class Window
     bool                    setupPixelFormat();
     bool                    registerRawMouseInput();
     void                    confineCursor(bool confine);
+    void                    restoreCursorState();
 
     bool m_mouseInputRegistred = false;
 

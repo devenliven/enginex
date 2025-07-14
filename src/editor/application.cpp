@@ -150,10 +150,12 @@ void App::renderSidebar()
 
     if (ImGui::CollapsingHeader("Lighting", ImGuiTreeNodeFlags_DefaultOpen)) {
         LightManager* lightManager = m_scene->getLightManager();
-        for (int i = 0; i < lightManager->getLightCount(); i++) {
+        auto          lightCount   = lightManager->getLightCount();
+        for (int i = 0; i < lightCount; i++) {
             auto        light    = lightManager->getLight(i);
             std::string typeName = light->getTypeName();
 
+            ImGui::SetNextItemOpen(true);
             if (ImGui::TreeNode((typeName + " Light##" + std::to_string(i)).c_str())) {
                 auto& position = light->getPosition();
                 float pos[3]   = {position.x, position.y, position.z};
@@ -180,10 +182,14 @@ void App::renderSidebar()
 
                 ImGui::TreePop();
             }
+
+            if (i < lightCount - 1) {
+                ImGui::Separator();
+            }
         }
     }
 
-    if (ImGui::CollapsingHeader("Camera")) {
+    if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
         Camera* camera = m_scene->getCamera();
         if (camera) {
             auto pos = camera->getPosition();

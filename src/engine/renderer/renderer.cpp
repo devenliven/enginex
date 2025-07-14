@@ -118,6 +118,10 @@ void Renderer::renderSceneToViewport(Scene* scene)
         // Display the framebuffer texture in ImGui
         ImGui::Image(ImTextureRef{m_colorTexture}, viewportSize, ImVec2(0, 1), ImVec2(1, 0));
 
+        // if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+        //     LOG_INFO("Clicked viewport!");
+        // }
+
         ImGui::SetCursorPos(ImVec2(10, 30));
         ImGui::Text("Viewport: %dx%d", m_viewportWidth, m_viewportHeight);
     }

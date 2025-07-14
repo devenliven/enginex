@@ -106,10 +106,10 @@ bool Window::create(const WindowData& data)
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-        ImGui_ImplWin32_InitForOpenGL(m_hwnd);
+    ImGui_ImplWin32_InitForOpenGL(m_hwnd);
     ImGui_ImplOpenGL3_Init();
 
-    setUiMode(false);
+    setUiMode(true);
 
     m_isOpen = true;
     LOG_DEBUG("Window created succesfully: {}x{}", m_width, m_height);
@@ -296,8 +296,14 @@ void Window::confineCursor(bool confine)
 void Window::setUiMode(bool toggle)
 {
     m_isUiActive = toggle;
-    showCursor(m_isUiActive);
-    confineCursor(!m_isUiActive);
+
+    if (GetFocus() == m_hwnd) {
+        showCursor(m_isUiActive);
+        confineCursor(!m_isUiActive);
+    } else {
+        showCursor(true);
+        confineCursor(false);
+    }
 
     ImGuiIO& io = ImGui::GetIO();
     if (m_isUiActive) {
@@ -307,6 +313,17 @@ void Window::setUiMode(bool toggle)
     }
 
     LOG_INFO("UI Mode Set to: {}", m_isUiActive);
+}
+
+void Window::restoreCursorState()
+{
+    if (GetFocus() == m_hwnd) {
+        showCursor(m_isUiActive);
+        confineCursor(!m_isUiActive);
+    } else {
+        showCursor(true);
+        confineCursor(false);
+    }
 }
 
 LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -340,39 +357,33 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 m_width  = LOWORD(lParam);
                 m_height = HIWORD(lParam);
 
-                confineCursor(true);
-
-                if (m_eventCallback) {
-                    // m_eventCallback(WindowEvent::Resize, m_width, m_height, 0);
+                // Only update cursor confinement if we're in editor and have focus
+                if (!m_isUiActive && GetFocus() == m_hwnd) {
+                    confineCursor(true);
                 }
             }
             return 0;
 
         case WM_SETFOCUS:
-            showCursor(false);
-            confineCursor(true);
-            if (m_eventCallback) {
-                // m_eventCallback(WindowEvent::Focus, 0, 0, 0);
+            // Only manage cursor if we're in editor
+            if (!m_isUiActive) {
+                showCursor(false);
+                confineCursor(true);
             }
             return 0;
 
         case WM_KILLFOCUS:
             showCursor(true);
-            confineCursor(true);
-            if (m_eventCallback) {
-                // m_eventCallback(WindowEvent::LostFocus, 0, 0, 0);
-            }
+            confineCursor(false);
             return 0;
 
-        case WM_MOVE:
-            showCursor(true);
-            if (m_eventCallback) {
-                // m_eventCallback(WindowEvent::Moved, LOWORD(lParam), HIWORD(lParam), 0);
-            }
-            return 0;
+        case WM_MOVE: return 0;
 
         case WM_EXITSIZEMOVE: {
-            showCursor(false);
+            if (GetFocus() == m_hwnd && !m_isUiActive) {
+                showCursor(false);
+                confineCursor(true);
+            }
             return 0;
         }
 
@@ -382,7 +393,7 @@ LRESULT Window::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 exit(0);
             }
 
-            if (wParam == VK_F1) {
+            if (wParam == VK_TAB) {
                 setUiMode(!m_isUiActive);
             }
 

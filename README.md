@@ -1,3 +1,5 @@
-A game engine that's in very early, early stages of development.
+# Untitled Engine
 
-It runs and draws things to a screen.
+A hobby project, Untitled Engine is a work-in-progress game engine to help get a better understanding of rendering, and engine development.
+
+<img src="screenshot.png">

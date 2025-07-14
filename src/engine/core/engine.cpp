@@ -134,10 +134,6 @@ void Engine::handleWindowEvent(WindowEvent event, int param1, int param2, int pa
             int     repeatCount = param2;
 
             m_inputManager->onKeyDown(key, repeatCount);
-
-            if (m_app) {
-                // m_app->onKeyPressed(key, repeatCount);
-            }
             break;
         }
         case WindowEvent::KeyReleased: {
