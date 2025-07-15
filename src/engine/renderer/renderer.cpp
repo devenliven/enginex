@@ -87,7 +87,7 @@ void Renderer::renderModel(const std::shared_ptr<ModelResource>& modelResource, 
 
 void Renderer::renderSceneToViewport(Scene* scene)
 {
-    ImGui::Begin("Viewport");
+    ImGui::Begin("Viewport", 0, ImGuiWindowFlags_NoDecoration);
 
     ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 

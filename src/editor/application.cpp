@@ -120,7 +120,7 @@ void App::renderUI()
     ImGuiIO& io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
         ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_NoUndocking);
     }
 
     // Menu bar
@@ -141,7 +141,7 @@ void App::renderUI()
 
 void App::renderSidebar()
 {
-    ImGui::Begin("Sidebar");
+    ImGui::Begin("Sidebar", 0, ImGuiWindowFlags_NoDecoration);
 
     if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Text("Models: %zu", m_scene->getModels().size());
